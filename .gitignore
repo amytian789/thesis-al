@@ -6,3 +6,5 @@
 *.Rout
 *.swp
 *.DS_Store
+*.Rproj.user
+.DS_Store

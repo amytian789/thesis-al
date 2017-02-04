@@ -21,15 +21,3 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
 
   res
 }
-
-al_method_closure <- function(func, ...){
-  function(X, y_unlabeled){
-    func(X, y_unlabeled, ...)
-  }
-}
-
-classifer_method_closure <- function(func, ...){
-  function(X, y_unlabeled){
-    func(X, y_unlabeled, ...)
-  }
-}

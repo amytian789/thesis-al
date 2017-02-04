@@ -1,5 +1,5 @@
 AL_engine <- function(X, y, y_unlabeled, al_method,
-                      classifer_method, return_method, iter, ...){
+                      classifer_method, return_method, iter){
 
   stopifnot(nrow(X) == length(y), is.matrix(X), is.factor(y), length(levels(y)) == 2)
   idx <- which(is.na(y_unlabeled))
@@ -9,15 +9,27 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
   res <- vector("list", iter)
 
   for(i in 1:iter){
-    next_sample <- al_method(X, y_unlabeled, ...)
+    next_sample <- al_method(X, y_unlabeled)
 
     y_unlabeled[next_sample] <- y[next_sample]
 
     idx <- which(!is.na(y_unlabeled))
-    classifier <- class_method(X[idx,], y_unlabeled[idx], ...)
+    classifier <- classifer_method(X[idx,], y_unlabeled[idx])
 
-    res[[i]] <- return_method(classifier, X, y, ...)
+    res[[i]] <- return_method(classifier, X, y)
   }
 
   res
+}
+
+al_method_closure <- function(func, ...){
+  function(X, y_unlabeled){
+    func(X, y_unlabeled, ...)
+  }
+}
+
+classifer_method_closure <- function(func, ...){
+  function(X, y_unlabeled){
+    func(X, y_unlabeled, ...)
+  }
 }

@@ -45,6 +45,7 @@ set.seed(10)
 us_lda_results <- AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "us", classifier_method = classifier_method,
                             return_method = return_method, iter = iter, n = n, classifier = "lda")
 
+### To change the committee, you must set it in the AL_engine
 set.seed(10)
 qbc_results <- AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = classifier_method,
                             return_method = return_method, iter = iter, n = n, dis = "vote_entropy", pt = 0.75)

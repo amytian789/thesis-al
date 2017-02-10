@@ -9,10 +9,41 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
   res <- vector("list", iter)
 
   for(i in 1:iter){
-    next_sample <- active_learning(X, y_unlabeled, al_method, n, ...)
+    # If QBC, the procedure is a little different....
+    if (al_method == "qbc") {
+      
+      if (i == 1) {
+        cm <- c("lda","ranger")
+        err<- rep(0,length(cm))
+      }
+      
+      next_sample <- active_learning(X=X, y=y_unlabeled, almethod=al_method, n=n, committee = cm,...)
+      y_unlabeled[next_sample[[1]]] <- y[next_sample[[1]]]
+      
+      # update error and prune as desired
+      if (i > iter/2) {
+        prune <- qbc_prune(X=X, y=y_unlabeled, index=next_sample[[1]], committee_pred=next_sample[[2]],
+                           k = i, err = err, is_prune = TRUE, ...)
+        err <- prune[[1]]
+        # check if there's stuff to prune
+        if (length(prune[[2]] != 0)) {
+          cm <- cm[-unlist(prune[[2]])]
+          err <- err[-unlist(prune[[2]])]
+        }
+      }
+      else {
+        prune <- qbc_prune(X=X, y=y_unlabeled, index=next_sample[[1]], committee_pred=next_sample[[2]],
+                           k = i, err = err, is_prune = FALSE, ...)
+        err <- prune[[1]]
+      }
+    }
+    # Everything else
+    else {
+      next_sample <- active_learning(X, y_unlabeled, al_method, n, ...)
+      y_unlabeled[next_sample] <- y[next_sample]
+    }
     
-    y_unlabeled[next_sample] <- y[next_sample]
-
+    # compute residual error
     idx <- which(!is.na(y_unlabeled))
     classifier <- classifier_method(X[idx,], y_unlabeled[idx])
 

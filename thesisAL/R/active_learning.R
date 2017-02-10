@@ -16,7 +16,9 @@ active_learning <- function(X, y, almethod = "us", n, ...){
             is.factor(y), length(levels(y)) == 2)
 
   unlabel_index_c <- sample(which(is.na(y)), n)
-  
+
   if(almethod == "us") uncertainty_sample(X,y,unlabel_index_c, ...)
-  else if(almethod == "rs") random_sample(unlabel_index_c, n = 1, ...)
+  else if (almethod == "rs") random_sample(unlabel_index_c, n = 1, ...)
+  else if (almethod == "qbc") qbc_sample(X,y,unlabel_index_c, ...)
+  else stop("AL method '",method,"' does not exist")
 }

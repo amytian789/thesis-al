@@ -1,5 +1,5 @@
 AL_engine <- function(X, y, y_unlabeled, al_method,
-                      classifier_method, return_method, iter, n, ...){
+                      classifier_method, return_method, iter, n, ...) {
 
   stopifnot(nrow(X) == length(y), is.matrix(X), is.factor(y), length(levels(y)) == 2)
   idx <- which(is.na(y_unlabeled))
@@ -36,6 +36,10 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
                            k = i, err = err, is_prune = FALSE, ...)
         err <- prune[[1]]
       }
+      
+      
+      
+      
     }
     # Everything else
     else {
@@ -43,12 +47,14 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
       y_unlabeled[next_sample] <- y[next_sample]
     }
     
-    # compute residual error
+    # compute residual error (committee slot is not used if not QBC method)
     idx <- which(!is.na(y_unlabeled))
-    classifier <- classifier_method(X[idx,], y_unlabeled[idx])
+    classifier <- classifier_method(X[idx,], y_unlabeled[idx], committee = cm)
 
-    res[[i]] <- return_method(classifier, X, y)
+    res[[i]] <- return_method(classifier, X, y, committee = cm)
   }
 
   res
 }
+
+################# Set up QBC's majority vote classifier stuff!!!!!!!!!!!

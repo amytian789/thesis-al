@@ -1,6 +1,7 @@
 source("../main/AL_header.R")
 
 library(caret)
+library(entropy)
 
 ################################
 # set up the data
@@ -22,17 +23,46 @@ y_unlabeled <- y
 y_unlabeled[c(11:100, 111:200)] <- NA
 
 ##################################
-# set up the methods
 
-classifier_method <- function(X, y){
+# Generic classifier method: X and y contain labeled points
+classifier_method <- function(X, y, ...) {
   MASS::lda(X, y)
 }
 
-#set up the return method
-return_method <- function(classifier, X, y){
-  pred <- stats::predict(classifier, X)$class
+# QBC classifier method: X and y contain labeled points
+qbc_majority <- function(X, y, committee, ...) {
+  tout <- list()
+  for (i in 1:length(committee)){
+    tout[[i]] <- train(X,y,committee[i])
+  }
+}
 
-  length(which(pred != y))/length(y)
+# Generic return method: X contain all points. y are known labels (unknown to the learning algorithm)
+return_method <- function(classifier, X, y, ...) {
+  p <- stats::predict(classifier, X)$class
+
+  length(which(p != y))/length(y)
+}
+
+# QBC return method: X contain all points. y are known labels (unknown to the learning algorithm)
+qbc_m_return <- function(tout, X, y, committee, ...) {
+  p <- list()
+  for (i in 1:length(committee)) {
+    p[[i]] <- predict(tout[[i]],newdata=X)
+  }
+  # Aggregate prediction
+  ap <- vector()
+  for (i in 1:length(committee)){
+    # Pick one at random if there is a tie
+    if (as.numeric(sort(table(test),decreasing=TRUE)[1]) == as.numeric(sort(table(test),decreasing=TRUE)[2])) {
+      temp <- c(0,1)
+      ap[i] <- sample(temp,1)
+    } else {
+      # Otherwise, insert the first one
+      ap[i] <- as.numeric(names(sort(table(test),decreasing=TRUE)[1]))
+    }
+  }
+  length(which(ap != y))/length(y)
 }
 
 ###################################
@@ -47,8 +77,8 @@ us_lda_results <- AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "us",
 
 ### To change the committee, you must set it in the AL_engine
 set.seed(10)
-qbc_results <- AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = classifier_method,
-                            return_method = return_method, iter = iter, n = n, dis = "vote_entropy", pt = 0.75)
+qbc_results <- AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = qbc_majority,
+                            return_method = qbc_m_return, iter = iter, n = n, dis = "vote_entropy", pt = 0.75)
 
 set.seed(10)
 random_results <- AL_engine(X, y, y_unlabeled, al_method = "rs", classifier_method,
@@ -66,7 +96,7 @@ random_vec <- unlist(random_results)
 qbc_vec <- unlist(qbc_results)
 
 #plot
-ymax <- max(c(us_lda_vec, random_vec))
+ymax <- max(c(us_lda_vec, random_vec, qbc_vec))
 graphics::plot(1:iter, us_lda_vec, ylim = c(0, ymax), lwd = 2, type = "l", main="Performance of AL", xlab="Interations", ylab="Error")
 graphics::lines(1:iter, random_vec, lwd = 2, col = "red")
 graphics::lines(1:iter, qbc_vec, lwd = 2, col = "blue")

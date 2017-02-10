@@ -4,10 +4,7 @@
 #' @param y a factor vector with 2 levels and NAs for unlabeled data
 #' @param unlabel_index_c is a vector of n pre-selected indices that the AL method may choose from 
 #' @param committee the list of committee classifiers
-#' @param is_prune is TRUE when pruning is desired, FALSE when not
 #' @param dis is the disagreement measure between committee classifications
-#' @param err is the current error-to-iteration ratio of each committee member
-#' @param pt is the pruning threshold (anything below it is pruned)
 #' @param ... additional parameters for the active learning method
 #'
 #' @return a vector of indices to query AND the committee predictions of this round
@@ -41,17 +38,26 @@ qbc_sample <- function(X, y, unlabel_index_c, committee, dis = "vote_entropy", .
   # gather the each committee's prediction
   pre <- rep(0,length(committee))
   for (i in 1:length(committee)) {
-    temp <- as.numeric(p[[i]][which(unlabel_index_c==index)])
-    pre[i] <- temp - 1 # list makes the value + 1 for some reason.
+    # predict function returns a factor
+    pre[i] <- as.numeric(as.character(p[[i]][which(unlabel_index_c==index)]))
   }
   list(index, pre)
 }
 
-
-
-
-
-# Returns a vector of indices to delete from the committee as well as the updated error
+#' Query by Committee (Pruning function)
+#'
+#' @param X the full data matrix, n x d, including all unlabeled data
+#' @param y a factor vector with 2 levels and NAs for unlabeled data
+#' @param index is the classification of X[index,] which was queried
+#' @param committee_pred is the list of committee predictions for index
+#' @param k is the current iteration number that the AL_engine is on
+#' @param pt is the pruning threshold (anything below it is pruned)
+#' @param err is the current error-to-iteration ratio of each committee member
+#' @param is_prune is TRUE when pruning is desired, FALSE when not
+#' @param ... additional parameters for the active learning method
+#'
+#' @return a list with the updated error and indices to delete from the committee
+#' @export
 qbc_prune <- function(X, y, index, committee_pred, k, pt = 0.25, err, is_prune, ...) {
   if (missing(err) || is.null(err) || is.na(err)) {
     stop("Committee error ratio is required for QBC pruning")

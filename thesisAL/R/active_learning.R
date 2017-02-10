@@ -17,7 +17,7 @@ active_learning <- function(X, y, almethod = "us", n, ...){
 
   unlabel_index_c <- sample(which(is.na(y)), n)
   
-  if(almethod == "us") uncertainty_sampling(X, y, unlabel_index_c, ...)
-  
-  #if(almethod == "us") activelearning::uncertainty_sampling(X, y, classifier="lda" ...)
+  if(almethod == "us_lda") uncertainty_sample(X,y,unlabel_index_c, "lda", ...)
+  else if(almethod == "us_gbm") uncertainty_sample(X,y,unlabel_index_c, "gbm", ...)
+  else if(almethod == "rs") random_sample(unlabel_index_c, n = 1, ...)
 }

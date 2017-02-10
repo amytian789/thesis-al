@@ -1,10 +1,12 @@
 source("../main/AL_header.R")
 
+library(caret)
+
 ################################
 # set up the data
 
 date <- Sys.Date()
-iter <- 100
+iter <- 15
 
 set.seed(10)
 X <- rbind(MASS::mvrnorm(100, rep(0,2), diag(2)),
@@ -22,15 +24,6 @@ y_unlabeled[c(11:100, 111:200)] <- NA
 ##################################
 # set up the methods
 
-al_method <- function(X, y, n){
-  active_learning(X, y, almethod = "us", n)
-}
-
-random_method <- function(X, y, n){
-  unlabel_index_c <- sample(which(is.na(y)), n)
-  sample(unlabel_index_c,1)
-}
-
 classifier_method <- function(X, y){
   MASS::lda(X, y)
 }
@@ -46,26 +39,30 @@ return_method <- function(classifier, X, y){
 
 # The number of random unlabeled points it "streams" to the AL / RS method
 n = 15
-
-#run the engine
 set.seed(10)
-us_results <- AL_engine(X, y, y_unlabeled, al_method, classifier_method,
-                         return_method, iter, n)
 
-set.seed(10)
-random_results <- AL_engine(X, y, y_unlabeled, random_method, classifier_method,
-                         return_method, iter, n)
+#run the engine (average over 1000 random samples)
+us_lda_results <- AL_engine(X, y, y_unlabeled, al_method = "us_lda", classifier_method,
+                            return_method, iter, n)
+
+random_results <- AL_engine(X, y, y_unlabeled, al_method = "rs", classifier_method,
+                            return_method, iter, n)
+
+# classifier performance given everything
+pred <- stats::predict(MASS::lda(X, y), X)$class
+perf_results <- rep(length(which(pred != y))/length(y),iter)
 
 ###################################
 
 #unwind the results
-us_vec <- unlist(us_results)
+us_lda_vec <- unlist(us_lda_results)
 random_vec <- unlist(random_results)
 
 #plot
-ymax <- max(c(us_vec, random_vec))
-graphics::plot(1:iter, us_vec, ylim = c(0, ymax), lwd = 2, type = "l", main="Performance of AL", xlab="Interations", ylab="Error")
+ymax <- max(c(us_lda_vec, random_vec))
+graphics::plot(1:iter, us_lda_vec, ylim = c(0, ymax), lwd = 2, type = "l", main="Performance of AL", xlab="Interations", ylab="Error")
 graphics::lines(1:iter, random_vec, lwd = 2, col = "red")
+graphics::lines(1:iter, perf_results, lwd = 2, col = "green")
 
 ########## This code doesn't seem too work right now
 # save.image(file = paste0("../results/us_", date, ".RData"))

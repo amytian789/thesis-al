@@ -9,7 +9,7 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
   res <- vector("list", iter)
 
   for(i in 1:iter){
-    next_sample <- al_method(X, y_unlabeled, n)
+    next_sample <- active_learning(X, y_unlabeled, al_method, n)
     
     y_unlabeled[next_sample] <- y[next_sample]
 

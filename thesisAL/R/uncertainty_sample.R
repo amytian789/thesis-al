@@ -8,7 +8,7 @@
 #'
 #' @return a vector of indices to query
 #' @export
-uncertainty_sampling <- function(X, y, unlabel_index_c, classifier = "lda", ...) {
+uncertainty_sample <- function(X, y, unlabel_index_c, classifier = "lda", ...) {
   # check that the classifier is compatible with uncertainty sampling
   c <- try(modelLookup(classifier))
   if (!any(c$probModel)) {

@@ -121,7 +121,7 @@ cluster_vec <- cluster_results / k
 
 #plot
 ymax <- max(c(us_lda_vec, random_vec, qbc_vec,cluster_vec))
-graphics::plot(1:iter, us_lda_vec, ylim = c(0, ymax), lwd = 2, type = "l", main="Performance of AL", xlab="Interations", ylab="Error")
+graphics::plot(1:iter, us_lda_vec, ylim = c(0, ymax), lwd = 2, type = "l", main="AL Error Ratio", xlab="Iterations", ylab="Error")
 graphics::lines(1:iter, random_vec, lwd = 2, col = "red")
 graphics::lines(1:iter, qbc_vec, lwd = 2, col = "blue")
 graphics::lines(1:iter, cluster_vec, lwd = 2, col = "orange")

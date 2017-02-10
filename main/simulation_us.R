@@ -6,7 +6,7 @@ library(caret)
 # set up the data
 
 date <- Sys.Date()
-iter <- 15
+iter <- 15 
 
 set.seed(10)
 X <- rbind(MASS::mvrnorm(100, rep(0,2), diag(2)),
@@ -42,8 +42,8 @@ n = 15
 set.seed(10)
 
 #run the engine (average over 1000 random samples)
-us_lda_results <- AL_engine(X, y, y_unlabeled, al_method = "us_lda", classifier_method,
-                            return_method, iter, n)
+us_lda_results <- AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "us", classifier_method = classifier_method,
+                            return_method = return_method, iter = iter, n = n, classifier = "lda")
 
 random_results <- AL_engine(X, y, y_unlabeled, al_method = "rs", classifier_method,
                             return_method, iter, n)

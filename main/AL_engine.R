@@ -6,7 +6,8 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
   stopifnot(length(idx) > 0, all(y[-idx] == y_unlabeled[-idx]), length(y) == length(y_unlabeled),
             is.factor(y_unlabeled))
 
-  res <- vector("list", iter)
+  #res <- vector("list", iter)
+  res <- vector()
 
   for(i in 1:iter){
     # If QBC, the procedure is a little different....
@@ -51,7 +52,8 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
     idx <- which(!is.na(y_unlabeled))
     classifier <- classifier_method(X[idx,], y_unlabeled[idx], committee = cm)
 
-    res[[i]] <- return_method(classifier, X, y, committee = cm)
+    #res[[i]] <- return_method(classifier, X, y, committee = cm)
+    res[i] <- return_method(classifier, X, y, committee = cm)
   }
 
   res

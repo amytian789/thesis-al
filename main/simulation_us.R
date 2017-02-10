@@ -18,9 +18,10 @@ for (i in 1:200) {
 }
 y <- factor(y)
 
-#set up the unlabeled data
+# Randomly set up the unlabeled data
+set.seed(10)
 y_unlabeled <- y
-y_unlabeled[c(11:100, 111:200)] <- NA
+y_unlabeled[sample(1:200,180)] <- NA
 
 ##################################
 
@@ -68,6 +69,7 @@ qbc_m_return <- function(tout, X, y, committee, ...) {
 ###################################
 
 # The number of random unlabeled points it "streams" to the AL / RS method
+# n = 0 indicates that the AL should sample from all data points 
 n = 15
 
 #run the engine (average over 1000 random samples)
@@ -79,6 +81,10 @@ us_lda_results <- AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "us",
 set.seed(10)
 qbc_results <- AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = qbc_majority,
                             return_method = qbc_m_return, iter = iter, n = n, dis = "vote_entropy", pt = 0.75)
+
+set.seed(10)
+cluster_results <- AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "cluster", classifier_method = classifier_method,
+                         return_method = return_method, iter = iter, n = n, dis = "euclidean")
 
 set.seed(10)
 random_results <- AL_engine(X, y, y_unlabeled, al_method = "rs", classifier_method,
@@ -94,12 +100,14 @@ perf_results <- rep(length(which(pred != y))/length(y),iter)
 us_lda_vec <- unlist(us_lda_results)
 random_vec <- unlist(random_results)
 qbc_vec <- unlist(qbc_results)
+cluster_vec <- unlist(cluster_results)
 
 #plot
-ymax <- max(c(us_lda_vec, random_vec, qbc_vec))
+ymax <- max(c(us_lda_vec, random_vec, qbc_vec,cluster_vec))
 graphics::plot(1:iter, us_lda_vec, ylim = c(0, ymax), lwd = 2, type = "l", main="Performance of AL", xlab="Interations", ylab="Error")
 graphics::lines(1:iter, random_vec, lwd = 2, col = "red")
 graphics::lines(1:iter, qbc_vec, lwd = 2, col = "blue")
+graphics::lines(1:iter, cluster_vec, lwd = 2, col = "orange")
 graphics::lines(1:iter, perf_results, lwd = 2, col = "green")
 
 ########## This code doesn't seem too work right now

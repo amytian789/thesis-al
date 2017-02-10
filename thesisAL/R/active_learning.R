@@ -14,11 +14,14 @@
 active_learning <- function(X, y, almethod = "us", n, ...){
   stopifnot(nrow(X) == length(y), is.matrix(X), any(is.na(y)),
             is.factor(y), length(levels(y)) == 2)
-
-  unlabel_index_c <- sample(which(is.na(y)), n)
+  
+  if (n == 0) {
+    unlabel_index_c <- which(is.na(y))
+  } else unlabel_index_c <- sample(which(is.na(y)), n)
 
   if(almethod == "us") uncertainty_sample(X,y,unlabel_index_c, ...)
   else if (almethod == "rs") random_sample(unlabel_index_c, n = 1, ...)
   else if (almethod == "qbc") qbc_sample(X,y,unlabel_index_c, ...)
+  else if (almethod == "cluster") cluster_sample(X,y,unlabel_index_c, ...)
   else stop("AL method '",method,"' does not exist")
 }

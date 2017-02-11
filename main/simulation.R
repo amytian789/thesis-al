@@ -1,7 +1,7 @@
 source("../main/AL_header.R")
 
-library(caret)
-library(entropy)
+# library(caret)
+# library(entropy)
 
 ################################
 # set up the data
@@ -129,3 +129,4 @@ graphics::lines(1:iter, perf_results, lwd = 2, col = "green")
 
 ########## This code doesn't seem too work right now
 # save.image(file = paste0("../results/us_", date, ".RData"))
+# try adding: safe=FALSE

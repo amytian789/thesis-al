@@ -32,6 +32,8 @@ classifier_method <- function(X, y, ...) {
 
 # QBC classifier method: X and y contain labeled points
 qbc_majority <- function(X, y, committee, ...) {
+  ################# start to edit:
+  # tout <- vector("list",length(committee))
   tout <- list()
   for (i in 1:length(committee)){
     tout[[i]] <- train(X,y,committee[i])

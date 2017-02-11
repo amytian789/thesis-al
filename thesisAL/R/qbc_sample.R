@@ -25,6 +25,13 @@ qbc_sample <- function(X, y, unlabel_index_c, committee, dis = "vote_entropy", .
     tout <- train(x_lab,y_lab,committee[i])
     p[[i]] <- predict(tout, newdata=x_ulab)
   }
+  ################# start to edit:
+#   sapply(1:length(committee), function(x){
+#     tout <- train(x_lab, y_lab, committe[i]
+#                   predict(tout, newdata = x_ulab)
+#   })
+  
+  
 
   # Compute disagreement methods (utilizing the functions from the activelearning package)
   if(dis == "vote_entropy") d <- vote_entropy(p, type="class")

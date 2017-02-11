@@ -1,7 +1,7 @@
 source("../main/AL_header.R")
 
-# library(caret)
-# library(entropy)
+library(caret)
+library(entropy)
 
 ################################
 # set up the data
@@ -50,20 +50,29 @@ return_method <- function(classifier, X, y, ...) {
 
 # QBC return method: X contain all points. y are known labels (unknown to the learning algorithm)
 qbc_m_return <- function(tout, X, y, committee, ...) {
-    p <- list()
+  p <- list()
   for (i in 1:length(committee)) {
     p[[i]] <- predict(tout[[i]],newdata=X)
   }
   # Aggregate prediction
   ap <- vector()
-  for (i in 1:length(committee)){
-    # Pick one at random if there is a tie
-    if (as.numeric(sort(table(test),decreasing=TRUE)[1]) == as.numeric(sort(table(test),decreasing=TRUE)[2])) {
-      temp <- c(0,1)
-      ap[i] <- sample(temp,1)
+  for (i in 1:length(y)){
+    temp <- as.numeric(as.character(p[[1]][i]))
+    for (j in 2:length(committee)){
+      temp <- c(temp,as.numeric(as.character(p[[j]][i])))
+    }
+    # error checking if a value doesn't appear at all
+    if (is.na(as.numeric(sort(table(temp),decreasing=TRUE)[2]))) {
+      ap[i] <- as.numeric(names(sort(table(temp),decreasing=TRUE)[1]))
     } else {
-      # Otherwise, insert the first one
-      ap[i] <- as.numeric(names(sort(table(test),decreasing=TRUE)[1]))
+      # pick one at random if there is a tie
+      if (as.numeric(sort(table(temp),decreasing=TRUE)[1]) == as.numeric(sort(table(temp),decreasing=TRUE)[2])) {
+        temp <- c(0,1)
+        ap[i] <- sample(temp,1)
+      } else {
+        # Otherwise, insert the first one
+        ap[i] <- as.numeric(names(sort(table(temp),decreasing=TRUE)[1]))
+      }
     }
   }
   length(which(ap != y))/length(y)

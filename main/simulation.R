@@ -4,7 +4,7 @@ library(caret)
 library(entropy)
 
 ################################
-# set up the data
+# set up the data #
 
 date <- Sys.Date()
 iter <- 50 
@@ -23,11 +23,18 @@ set.seed(10)
 y_unlabeled <- y
 y_unlabeled[sample(1:200,180)] <- NA
 
-##################################
+################################## Overall classifier and return methods
 
 # Generic classifier method: X and y contain labeled points
+# This is the MAIN overall classifier that will train on the data once the AL selection is completed
 classifier_method <- function(X, y, ...) {
   MASS::lda(X, y)
+}
+
+# Generic classifier method prediction: X contain all points to predict
+# This is the MAIN overall classifier that will train on the data once the AL selection is completed
+classifier_predict <- function(classifier, X, ...) {
+  stats::predict(classifier, X)$class
 }
 
 # QBC classifier method: X and y contain labeled points
@@ -39,14 +46,14 @@ qbc_majority <- function(X, y, committee, ...) {
   tout
 }
 
-# Generic return method: X contain all points. y are known labels (unknown to the learning algorithm)
+# Generic error ratio: X contain all points. y are known labels (unknown to the learning algorithm)
 return_method <- function(classifier, X, y, ...) {
   p <- stats::predict(classifier, X)$class
 
   length(which(p != y))/length(y)
 }
 
-# QBC return method: X contain all points. y are known labels (unknown to the learning algorithm)
+# QBC error ratio: X contain all points. y are known labels (unknown to the learning algorithm)
 qbc_m_return <- function(tout, X, y, committee, ...) {
   p <- vector("list",length(committee))
   for (i in 1:length(committee)) {
@@ -88,6 +95,7 @@ set.seed(10)
 #initialize
 us_lda_results <- rep(0, iter)
 qbc_results <- rep(0, iter)
+qbb_results <- rep(0, iter)
 cluster_results <- rep(0, iter)
 random_results <- rep(0, iter)
 
@@ -99,16 +107,25 @@ perf_results <- rep(return_method(pred,X,y),iter)
 for (i in 1:k){
   us_lda_results <- us_lda_results + 
                     AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "us", classifier_method = classifier_method,
-                              return_method = return_method, iter = iter, n = n, classifier = "lda")
+                              return_method = return_method, iter = iter, n = n, 
+                              classifier = "lda")
   
   ### To change the committee, you must set it in the AL_engine
   qbc_results <- qbc_results + 
                  AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = qbc_majority,
-                          return_method = qbc_m_return, iter = iter, n = n, dis = "vote_entropy", pt = 0.75)
+                          return_method = qbc_m_return, iter = iter, n = n, 
+                          dis = "vote_entropy", pt = 0.75)
+  
+  qbb_results <- qbb_results + 
+                 AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbb", classifier_method = classifier_method,
+                           return_method = return_method, iter = iter, n = n, 
+                           classifier_train=classifier_method, classifier_predict=classifier_predict, 
+                           num_class=5, r=0.5, dis = "vote_entropy")
   
   cluster_results <- cluster_results + 
                      AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "cluster", classifier_method = classifier_method,
-                              return_method = return_method, iter = iter, n = n, dis = "euclidean")
+                              return_method = return_method, iter = iter, 
+                              n = n, dis = "euclidean")
   
   random_results <- random_results + 
                     AL_engine(X, y, y_unlabeled, al_method = "rs", classifier_method, return_method, iter, n)

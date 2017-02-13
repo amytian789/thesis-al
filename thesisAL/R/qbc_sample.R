@@ -13,8 +13,7 @@ qbc_sample <- function(X, y, unlabel_index_c, committee, dis = "vote_entropy", .
   if (missing(committee) || is.null(committee)) {
     stop("A committee is required for QBC")
   }
-  
-  # Standard QBC
+  #
   unlabel_index <- which(is.na(y))
   x_lab <- X[-unlabel_index,]
   y_lab <- y[-unlabel_index]
@@ -25,18 +24,18 @@ qbc_sample <- function(X, y, unlabel_index_c, committee, dis = "vote_entropy", .
     tout <- caret::train(x_lab,y_lab,committee[i])
     p[[i]] <- predict(tout, newdata=x_ulab)
   }
-
-  # Compute disagreement methods (utilizing the functions from the activelearning package)
+  
+  # Compute disagreement (utilizing the functions from the activelearning package)
   d <- switch(dis,
               vote_entropy=vote_entropy(p, type="class"),
               post_entropy=post_entropy(p, type="class"),
               kullback=kullback(p, type="class")
-              )
+  )
   
   index <- unlabel_index_c[which(d == max(d))]
   if (length(index) > 1) index <- sample(index,1)
   
-  # gather the each committee's prediction
+  # gather each committee's prediction
   pre <- rep(0,length(committee))
   for (i in 1:length(committee)) {
     # predict function returns a factor

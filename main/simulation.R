@@ -124,6 +124,9 @@ cluster_vec <- cluster_results / k
 
 ###################################
 
+pdf(file=paste0("C:/Users/amyti/Documents/Amy - COLLEGE/THESIS/thesis-al/results/lda_", date, ".PDF"), 
+    height = 6, width = 10)
+
 #plot
 ymax <- max(c(us_lda_vec, random_vec, qbc_vec,cluster_vec))
 graphics::plot(1:iter, random_vec, ylim = c(0, ymax), lwd = 2, type = "l", 
@@ -133,6 +136,5 @@ graphics::lines(1:iter, qbc_vec, lwd = 2, col = "blue")
 graphics::lines(1:iter, cluster_vec, lwd = 2, col = "orange")
 graphics::lines(1:iter, perf_results, lwd = 2, col = "green")
 
-########## This code doesn't seem too work right now
-# save.image(file = paste0("../results/us_", date, ".RData"))
-# try adding: safe=FALSE
+graphics.off()
+save.image(file = paste0("C:/Users/amyti/Documents/Amy - COLLEGE/THESIS/thesis-al/results/lda_", date, ".RData"))

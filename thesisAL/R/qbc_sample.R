@@ -20,24 +20,18 @@ qbc_sample <- function(X, y, unlabel_index_c, committee, dis = "vote_entropy", .
   y_lab <- y[-unlabel_index]
   x_ulab <- X[unlabel_index_c,]
   
-  p <- list()
+  p <- vector("list",length(committee))
   for (i in 1:length(committee)) {
-    tout <- train(x_lab,y_lab,committee[i])
+    tout <- caret::train(x_lab,y_lab,committee[i])
     p[[i]] <- predict(tout, newdata=x_ulab)
   }
-  ################# start to edit:
-#   sapply(1:length(committee), function(x){
-#     tout <- train(x_lab, y_lab, committe[i]
-#                   predict(tout, newdata = x_ulab)
-#   })
-  
-  
 
   # Compute disagreement methods (utilizing the functions from the activelearning package)
-  if(dis == "vote_entropy") d <- vote_entropy(p, type="class")
-  else if (dis == "post_entropy") d <- post_entropy(p, type="class")
-  else if (dis == "kullback") d <- kullback(p, type="class")
-  else stop("Disagreement method '",dis,"' does not exist")
+  d <- switch(dis,
+              vote_entropy=vote_entropy(p, type="class"),
+              post_entropy=post_entropy(p, type="class"),
+              kullback=kullback(p, type="class")
+              )
   
   index <- unlabel_index_c[which(d == max(d))]
   if (length(index) > 1) index <- sample(index,1)
@@ -48,8 +42,22 @@ qbc_sample <- function(X, y, unlabel_index_c, committee, dis = "vote_entropy", .
     # predict function returns a factor
     pre[i] <- as.numeric(as.character(p[[i]][which(unlabel_index_c==index)]))
   }
+  
   list(index, pre)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #' Query by Committee (Pruning function)
 #'
@@ -58,18 +66,18 @@ qbc_sample <- function(X, y, unlabel_index_c, committee, dis = "vote_entropy", .
 #' @param index is the classification of X[index,] which was queried
 #' @param committee_pred is the list of committee predictions for index
 #' @param k is the current iteration number that the AL_engine is on
-#' @param pt is the pruning threshold (anything below it is pruned)
-#' @param err is the current error-to-iteration ratio of each committee member
+#' @param pt is the pruning threshold (any error value above it is pruned)
+#' @param err is the error-to-iteration ratio of each committee member (0, the best, -> 1, the worst)
 #' @param is_prune is TRUE when pruning is desired, FALSE when not
 #' @param ... additional parameters for the active learning method
 #'
 #' @return a list with the updated error and indices to delete from the committee
 #' @export
-qbc_prune <- function(X, y, index, committee_pred, k, pt = 0.25, err, is_prune, ...) {
+qbc_prune <- function(X, y, index, committee_pred, k, pt = 0.75, err, is_prune, ...) {
   if (missing(err) || is.null(err) || is.na(err)) {
     stop("Committee error ratio is required for QBC pruning")
   }
-  prune <- vector()
+  prune <- vector() # Do not know how long prune will be until the end
   # Do not prune if committee size is 1 or it's the first round
   if (length(committee_pred) == 1 | k == 1) {
     list(err, prune)
@@ -100,7 +108,7 @@ qbc_prune <- function(X, y, index, committee_pred, k, pt = 0.25, err, is_prune, 
 vote_entropy <- function(x, type='class', entropy_method='ML') {
   it <- do.call(itertools2::izip, x)
   disagreement <- sapply(it, function(obs) {
-    entropy(table(unlist(obs)), method=entropy_method)
+    entropy::entropy(table(unlist(obs)), method=entropy_method)
   })
   disagreement
 }
@@ -109,7 +117,7 @@ vote_entropy <- function(x, type='class', entropy_method='ML') {
 post_entropy <- function(x, type='posterior') {
   avg_post <- Reduce('+', x) / length(x)
   apply(avg_post, 1, function(obs_post) {
-    entropy.plugin(obs_post)
+    entropy::entropy.plugin(obs_post)
   })
 }
 

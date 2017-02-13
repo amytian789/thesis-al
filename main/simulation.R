@@ -32,11 +32,9 @@ classifier_method <- function(X, y, ...) {
 
 # QBC classifier method: X and y contain labeled points
 qbc_majority <- function(X, y, committee, ...) {
-  ################# start to edit:
-  # tout <- vector("list",length(committee))
-  tout <- list()
+  tout <- vector("list",length(committee))
   for (i in 1:length(committee)){
-    tout[[i]] <- train(X,y,committee[i])
+    tout[[i]] <- caret::train(X,y,committee[i])
   }
   tout
 }
@@ -50,12 +48,12 @@ return_method <- function(classifier, X, y, ...) {
 
 # QBC return method: X contain all points. y are known labels (unknown to the learning algorithm)
 qbc_m_return <- function(tout, X, y, committee, ...) {
-  p <- list()
+  p <- vector("list",length(committee))
   for (i in 1:length(committee)) {
     p[[i]] <- predict(tout[[i]],newdata=X)
   }
   # Aggregate prediction
-  ap <- vector()
+  ap <- rep(0,length(y))
   for (i in 1:length(y)){
     temp <- as.numeric(as.character(p[[1]][i]))
     for (j in 2:length(committee)){
@@ -66,7 +64,7 @@ qbc_m_return <- function(tout, X, y, committee, ...) {
       ap[i] <- as.numeric(names(sort(table(temp),decreasing=TRUE)[1]))
     } else {
       # pick one at random if there is a tie
-      if (as.numeric(sort(table(temp),decreasing=TRUE)[1]) == as.numeric(sort(table(temp),decreasing=TRUE)[2])) {
+      if (as.numeric(sort(table(temp),decreasing=TRUE)[1]) == as.numeric(sort(table(temp),decreasing=TRUE)[2])){
         temp <- c(0,1)
         ap[i] <- sample(temp,1)
       } else {
@@ -92,7 +90,8 @@ us_lda_results <- rep(0, iter)
 qbc_results <- rep(0, iter)
 cluster_results <- rep(0, iter)
 random_results <- rep(0, iter)
-# classifier performance given everything
+
+# classifier performance given all data is labeled
 pred <- classifier_method(X,y)
 perf_results <- rep(return_method(pred,X,y),iter)
 
@@ -113,7 +112,8 @@ for (i in 1:k){
   
   random_results <- random_results + 
                     AL_engine(X, y, y_unlabeled, al_method = "rs", classifier_method, return_method, iter, n)
-  print(c("round ",i))
+  
+  print(c("Trial ",i,"complete"))
 }
 
 # Average
@@ -124,16 +124,11 @@ cluster_vec <- cluster_results / k
 
 ###################################
 
-#unwind the results
-# us_lda_vec <- unlist(us_lda_results)
-# random_vec <- unlist(random_results)
-# qbc_vec <- unlist(qbc_results)
-# cluster_vec <- unlist(cluster_results)
-
 #plot
 ymax <- max(c(us_lda_vec, random_vec, qbc_vec,cluster_vec))
-graphics::plot(1:iter, us_lda_vec, ylim = c(0, ymax), lwd = 2, type = "l", main="AL Error Ratio", xlab="Iterations", ylab="Error")
-graphics::lines(1:iter, random_vec, lwd = 2, col = "red")
+graphics::plot(1:iter, random_vec, ylim = c(0, ymax), lwd = 2, type = "l", 
+               main="AL Error Ratio", xlab="Iterations", ylab="Error", col = "red")
+graphics::lines(1:iter, us_lda_vec, lwd = 2, col = "black")
 graphics::lines(1:iter, qbc_vec, lwd = 2, col = "blue")
 graphics::lines(1:iter, cluster_vec, lwd = 2, col = "orange")
 graphics::lines(1:iter, perf_results, lwd = 2, col = "green")

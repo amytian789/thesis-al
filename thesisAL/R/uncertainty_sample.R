@@ -14,7 +14,7 @@ uncertainty_sample <- function(X, y, unlabel_index_c, classifier, ...) {
   }
   
   # check that the classifier is compatible with uncertainty sampling
-  c <- try(modelLookup(classifier))
+  c <- try(caret::modelLookup(classifier))
   if (!any(c$probModel)) {
     stop(classifier," must return posterior probabilities")
   }
@@ -25,8 +25,7 @@ uncertainty_sample <- function(X, y, unlabel_index_c, classifier, ...) {
   y_lab <- y[-unlabel_index]
   x_ulab <- X[unlabel_index_c,]
   
-  # train function depeneds on the "Caret" package
-  tout <- train(x_lab,y_lab,classifier)
+  tout <- caret::train(x_lab,y_lab,classifier)
   p <- as.matrix(predict(tout, newdata=x_ulab, type="prob"))
  
   # return corresponding X index of posterior closest to 0.5

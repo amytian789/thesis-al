@@ -17,7 +17,7 @@ cluster_sample <- function(X, y, unlabel_index_c, dis = "euclidean", ...) {
   y_ulab <- y[unlabel_index_c]
   
   # Select the point furthest from points that are already labeled
-  q <- vector()
+  q <- rep(0,length(y_ulab))
   for (i in 1:length(y_ulab)) {
     min <- Inf
     for (j in 1:length(y_lab)) {
@@ -34,13 +34,11 @@ cluster_sample <- function(X, y, unlabel_index_c, dis = "euclidean", ...) {
 
 
 cs_distance <- function(a,b,dis = "euclidean"){
-  if (dis == "euclidean") cs_euclidean_distance(a,b)
+  d <- switch(dis,
+         euclidean=cs_euclidean_distance(a,b)
+         )
 }
 
 cs_euclidean_distance <- function(a,b) {
-  sum <- 0
-  for (i in 1:length(a)) {
-    sum <- sum + (a[i] - b[i])^2
-  }
-  sqrt(sum)
+  sqrt( sum( mapply( function(x,y) (x-y)^2, a, b)))
 }

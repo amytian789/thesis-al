@@ -1,10 +1,7 @@
-source("../main/AL_header.R")
-
-library(caret)
-library(entropy)
+source("C:/Users/amyti/Documents/Amy - COLLEGE/THESIS/thesis-al/main/AL_header.R")
 
 ################################
-# set up the data #
+# set up the data
 
 date <- Sys.Date()
 iter <- 50 
@@ -87,10 +84,8 @@ qbc_m_return <- function(tout, X, y, committee, ...) {
 
 # The number of random unlabeled points it "streams" to the AL / RS method
 # n = 0 indicates that the AL should sample from all data points 
-n = 15
-k = 10
-
-set.seed(10)
+n <- 15
+k <- 1
 
 #initialize
 us_lda_results <- rep(0, iter)
@@ -105,28 +100,33 @@ perf_results <- rep(return_method(pred,X,y),iter)
 
 #run the engine (average over k = 1000 random samples)
 for (i in 1:k){
+  set.seed(10)
   us_lda_results <- us_lda_results + 
                     AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "us", classifier_method = classifier_method,
                               return_method = return_method, iter = iter, n = n, 
                               classifier = "lda")
   
   ### To change the committee, you must set it in the AL_engine
+  set.seed(10)
   qbc_results <- qbc_results + 
                  AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = qbc_majority,
                           return_method = qbc_m_return, iter = iter, n = n, 
                           dis = "vote_entropy", pt = 0.75)
   
+  set.seed(10)
   qbb_results <- qbb_results + 
                  AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbb", classifier_method = classifier_method,
                            return_method = return_method, iter = iter, n = n, 
                            classifier_train=classifier_method, classifier_predict=classifier_predict, 
-                           num_class=5, r=0.5, dis = "vote_entropy")
+                           num_class=10, r=0.75, dis = "vote_entropy")
   
+  set.seed(10)
   cluster_results <- cluster_results + 
                      AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "cluster", classifier_method = classifier_method,
                               return_method = return_method, iter = iter, 
                               n = n, dis = "euclidean")
   
+  set.seed(10)
   random_results <- random_results + 
                     AL_engine(X, y, y_unlabeled, al_method = "rs", classifier_method, return_method, iter, n)
   
@@ -137,6 +137,7 @@ for (i in 1:k){
 us_lda_vec <- us_lda_results / k
 random_vec <- random_results / k
 qbc_vec <- qbc_results / k
+qbb_vec <- qbb_results / k
 cluster_vec <- cluster_results / k
 
 ###################################
@@ -146,16 +147,18 @@ pdf(file=paste0("C:/Users/amyti/Documents/Amy - COLLEGE/THESIS/thesis-al/results
 
 #plot
 ymax <- max(c(us_lda_vec, random_vec, qbc_vec,cluster_vec))
-graphics::plot(1:iter, random_vec, ylim = c(0, ymax), lwd = 2, type = "l", 
-               main="AL Error Ratio with LDA Classifier", xlab="Iterations", ylab="Error", col = "red")
+graphics::plot(1:iter, perf_results, ylim = c(0, ymax), lwd = 2, type = "l", 
+               main="AL Error Ratio with LDA Classifier", xlab="Iterations", ylab="Error", col = "green")
+graphics::lines(1:iter, random_vec, lwd = 2, col = "red")
 graphics::lines(1:iter, us_lda_vec, lwd = 2, col = "black")
 graphics::lines(1:iter, qbc_vec, lwd = 2, col = "blue")
+graphics::lines(1:iter, qbb_vec, lwd = 2, col = "darkturquoise")
 graphics::lines(1:iter, cluster_vec, lwd = 2, col = "orange")
-graphics::lines(1:iter, perf_results, lwd = 2, col = "green")
 
 graphics::legend(x="bottomleft",lwd=2,cex = 0.75,legend=
-                 c("Random Sampling","Uncertainty Sampling", "Query by Committee","Min-Max Clustering","Given all data with labels"),
-                 col=c("red","black","blue","orange","green"))
+                 c("Random Sampling","Uncertainty Sampling","Query by Committee","Query by Bagging","Min-Max Clustering",
+                   "Given all data with labels"),
+                 col=c("red","black","blue","darkturquoise","orange","green"))
 
 graphics.off()
 save.image(file = paste0("C:/Users/amyti/Documents/Amy - COLLEGE/THESIS/thesis-al/results/lda_", date, ".RData"))

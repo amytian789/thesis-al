@@ -13,7 +13,7 @@ qbc_sample <- function(X, y, unlabel_index_c, committee, dis = "vote_entropy", .
   if (missing(committee) || is.null(committee)) {
     stop("A committee is required for QBC")
   }
-  #
+  
   unlabel_index <- which(is.na(y))
   x_lab <- X[-unlabel_index,]
   y_lab <- y[-unlabel_index]

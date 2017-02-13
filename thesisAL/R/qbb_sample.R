@@ -12,19 +12,17 @@
 #'
 #' @return an index to query
 #' @export
-qbc_sample <- function(X, y, unlabel_index_c, classifier_train, classifier_predict, num_class, r, dis = "vote_entropy", ...){
-  if(r<=0 || r>0) stop("r must be in (0,1]. r*(# of labeled points) = # of points to randomly sample for each of the num_class rounds")
+qbb_sample <- function(X, y, unlabel_index_c, classifier_train, classifier_predict, num_class, r, dis = "vote_entropy", ...){
+  if(r<=0 || r>1) stop("r must be in (0,1]. r*(# of labeled points) = # of points to randomly sample for each of the num_class rounds")
   
-  label_index <- which(!is.na(y))
-  x_lab <- X[label_index,]
-  y_lab <- y[label_index]
-  x_ulab <- X[-label_index_c,]
+  x_ulab <- X[unlabel_index_c,]
   
   # Randomly sample from the labeled set to create a classifier
+  label_index <- which(!is.na(y))
   committee <- vector("list",num_class)
   for (i in 1:num_class) {
     idx <- sample(label_index,round(length(label_index)*r,0))
-    committee[[i]] <- classifier_train(x_lab[idx,],y_lab[idx])
+    committee[[i]] <- classifier_train(X[idx,],y[idx])
   }
   
   # Utilize the resulting classifiers as a committee

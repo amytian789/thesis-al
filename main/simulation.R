@@ -130,11 +130,15 @@ pdf(file=paste0("C:/Users/amyti/Documents/Amy - COLLEGE/THESIS/thesis-al/results
 #plot
 ymax <- max(c(us_lda_vec, random_vec, qbc_vec,cluster_vec))
 graphics::plot(1:iter, random_vec, ylim = c(0, ymax), lwd = 2, type = "l", 
-               main="AL Error Ratio", xlab="Iterations", ylab="Error", col = "red")
+               main="AL Error Ratio with LDA Classifier", xlab="Iterations", ylab="Error", col = "red")
 graphics::lines(1:iter, us_lda_vec, lwd = 2, col = "black")
 graphics::lines(1:iter, qbc_vec, lwd = 2, col = "blue")
 graphics::lines(1:iter, cluster_vec, lwd = 2, col = "orange")
 graphics::lines(1:iter, perf_results, lwd = 2, col = "green")
+
+graphics::legend(x="bottomleft",lwd=2,cex = 0.75,legend=
+                 c("Random Sampling","Uncertainty Sampling", "Query by Committee","Min-Max Clustering","Given all data with labels"),
+                 col=c("red","black","blue","orange","green"))
 
 graphics.off()
 save.image(file = paste0("C:/Users/amyti/Documents/Amy - COLLEGE/THESIS/thesis-al/results/lda_", date, ".RData"))

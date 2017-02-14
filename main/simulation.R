@@ -116,34 +116,30 @@ pred <- classifier_method(X,y)
 perf_results <- rep(return_method(pred,X,y),iter)
 
 #run the engine (average over k = 1000 random samples)
+set.seed(10)
 for (i in 1:k){
-  set.seed(10)
   us_lda_results <- us_lda_results + 
                     AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "us", classifier_method = classifier_method,
                               return_method = return_method, iter = iter, n = s, 
                               classifier = "lda")
   
   ### To change the committee, you must set it in the AL_engine
-  set.seed(10)
   qbc_results <- qbc_results + 
                  AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = qbc_majority,
                           return_method = qbc_m_return, iter = iter, n = s, 
                           dis = "vote_entropy", pt = 0.75)
   
-  set.seed(10)
   qbb_results <- qbb_results + 
                  AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbb", classifier_method = classifier_method,
                            return_method = return_method, iter = iter, n = s, 
                            classifier_train=classifier_method, classifier_predict=classifier_predict, 
                            num_class=10, r=0.75, dis = "vote_entropy")
   
-  set.seed(10)
   cluster_results <- cluster_results + 
                      AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "cluster", classifier_method = classifier_method,
                               return_method = return_method, iter = iter, 
                               n = s, dis = "euclidean")
   
-  set.seed(10)
   random_results <- random_results + 
                     AL_engine(X, y, y_unlabeled, al_method = "rs", classifier_method, return_method, iter, s)
   

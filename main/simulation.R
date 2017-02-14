@@ -1,24 +1,10 @@
-source("C:/Users/amyti/Documents/Amy - COLLEGE/THESIS/thesis-al/main/AL_header.R")
+setwd("C:/Users/amyti/Documents/Amy - COLLEGE/THESIS/thesis-al/")
+source("main/AL_header.R")
+source("main/AL_engine.R")
+source("main/AL_data.R")
 
-################################
-# set up the data
 
-date <- Sys.Date()
-iter <- 50 
 
-set.seed(10)
-X <- rbind(MASS::mvrnorm(100, rep(0,2), diag(2)),
-           MASS::mvrnorm(100, c(0.5,0), diag(2)))
-y <- rep(0,200)
-for (i in 1:200) {
-  if (X[i,1] > 0 & X[i,2] > 0) y[i] = 1
-}
-y <- factor(y)
-
-# Randomly set up the unlabeled data
-set.seed(10)
-y_unlabeled <- y
-y_unlabeled[sample(1:200,180)] <- NA
 
 ################################## Overall classifier and return methods
 
@@ -80,12 +66,43 @@ qbc_m_return <- function(tout, X, y, committee, ...) {
   length(which(ap != y))/length(y)
 }
 
-###################################
 
-# The number of random unlabeled points it "streams" to the AL / RS method
-# n = 0 indicates that the AL should sample from all data points 
-n <- 15
-k <- 1
+
+
+################################ Set up the data
+
+load_mnist()
+names(train)
+
+# Randomly select the dataset. a and b are the labels which we want to compare 
+# (a,b in [0,10]. We are only interested bivariate classification)
+set.seed(10)
+a <- 0
+b <- 1
+n <- 500 # desired dataset size
+idx <- c(sample(which(train$y == a),n/2),sample(which(train$y == b),n/2))
+X <- train$x[idx,]
+X <- t(apply(X,1,compressImg)) # compress from 28x28 to 14x14 pixels
+y <- train$y[idx] # y contains the "true" labels. y is never seen by the AL algorithms 
+
+# Randomly select the initial points given to the AL algorithms
+set.seed(10)
+y_unlabeled <- y
+y_unlabeled[sample(1:n,180)] <- NA
+
+# Visual representation of the data
+plotTable(25,20,y,X)
+
+
+
+
+
+###################################
+ 
+s <- 15 # Number of random unlabeled points to "stream" to the AL method
+        # n = 0 indicates that the AL stream should sample from all data points
+k <- 1 # Number of simulations to run
+iter <- 50  # Number of AL algorithm iterations (the "budget")
 
 #initialize
 us_lda_results <- rep(0, iter)
@@ -103,20 +120,20 @@ for (i in 1:k){
   set.seed(10)
   us_lda_results <- us_lda_results + 
                     AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "us", classifier_method = classifier_method,
-                              return_method = return_method, iter = iter, n = n, 
+                              return_method = return_method, iter = iter, n = s, 
                               classifier = "lda")
   
   ### To change the committee, you must set it in the AL_engine
   set.seed(10)
   qbc_results <- qbc_results + 
                  AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = qbc_majority,
-                          return_method = qbc_m_return, iter = iter, n = n, 
+                          return_method = qbc_m_return, iter = iter, n = s, 
                           dis = "vote_entropy", pt = 0.75)
   
   set.seed(10)
   qbb_results <- qbb_results + 
                  AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbb", classifier_method = classifier_method,
-                           return_method = return_method, iter = iter, n = n, 
+                           return_method = return_method, iter = iter, n = s, 
                            classifier_train=classifier_method, classifier_predict=classifier_predict, 
                            num_class=10, r=0.75, dis = "vote_entropy")
   
@@ -124,11 +141,11 @@ for (i in 1:k){
   cluster_results <- cluster_results + 
                      AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "cluster", classifier_method = classifier_method,
                               return_method = return_method, iter = iter, 
-                              n = n, dis = "euclidean")
+                              n = s, dis = "euclidean")
   
   set.seed(10)
   random_results <- random_results + 
-                    AL_engine(X, y, y_unlabeled, al_method = "rs", classifier_method, return_method, iter, n)
+                    AL_engine(X, y, y_unlabeled, al_method = "rs", classifier_method, return_method, iter, s)
   
   print(c("Trial ",i,"complete"))
 }
@@ -140,9 +157,14 @@ qbc_vec <- qbc_results / k
 qbb_vec <- qbb_results / k
 cluster_vec <- cluster_results / k
 
-###################################
 
-pdf(file=paste0("C:/Users/amyti/Documents/Amy - COLLEGE/THESIS/thesis-al/results/lda_", date, ".PDF"), 
+
+
+
+################################### Plot the results
+
+date <- Sys.Date()
+pdf(file=paste0("results/lda_", date, ".PDF"), 
     height = 6, width = 10)
 
 #plot
@@ -161,4 +183,4 @@ graphics::legend(x="bottomleft",lwd=2,cex = 0.75,legend=
                  col=c("red","black","blue","darkturquoise","orange","green"))
 
 graphics.off()
-save.image(file = paste0("C:/Users/amyti/Documents/Amy - COLLEGE/THESIS/thesis-al/results/lda_", date, ".RData"))
+save.image(file = paste0("results/lda_", date, ".RData"))

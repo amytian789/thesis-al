@@ -6,14 +6,14 @@
 #' @param classifier_train is a function that returns a classifier given labeled data
 #' @param classifier_predict is a function that returns labeled predictions given a classifier
 #' @param num_class is the number of times to randomly sample the training set for a new committee classifier 
-#' @param r in (0,1]. r*(# of labeled points) = # of points to randomly sample for each of the num_class rounds
+#' @param r in (0,1). r*(# of labeled points) = # of points to randomly sample for each of the num_class rounds
 #' @param dis is the disagreement measure between committee classifications
 #' @param ... additional parameters for the active learning method
 #'
 #' @return an index to query
 #' @export
 qbb_sample <- function(X, y, unlabel_index_c, classifier_train, classifier_predict, num_class, r, dis = "vote_entropy", ...){
-  if(r<=0 || r>1) stop("r must be in (0,1]. r*(# of labeled points) = # of points to randomly sample for each of the num_class rounds")
+  if(r<=0 || r>=1) stop("r must be in (0,1). r*(# of labeled points) = # of points to randomly sample for each of the num_class rounds")
   
   x_ulab <- X[unlabel_index_c,]
   

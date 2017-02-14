@@ -6,8 +6,6 @@ library(devtools)
 # -> replace with the below once ready to "ship"
 devtools::load_all("C:/Users/amyti/Documents/Amy - COLLEGE/THESIS/thesis-al/thesisAL")
 
-source("C:/Users/amyti/Documents/Amy - COLLEGE/THESIS/thesis-al/main/AL_engine.R")
-
 ######################
 
 # load package so that you can run the simulation code

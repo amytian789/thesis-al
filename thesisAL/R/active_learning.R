@@ -21,7 +21,7 @@ active_learning <- function(X, y, almethod = "us", n, ...){
 
   switch(almethod,
          us=uncertainty_sample(X,y,unlabel_index_c, ...),
-         rs=random_sample(unlabel_index_c, n = 1, ...),
+         rs=random_sample(unlabel_index_c, ns = 1, ...),
          qbc=qbc_sample(X,y,unlabel_index_c, ...),
          qbb=qbb_sample(X,y,unlabel_index_c,...),
          qbc_prune=qbc_prune(X=X, y=y, ...),

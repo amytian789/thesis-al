@@ -177,13 +177,13 @@ cluster_vec <- cluster_results / k
 ################################### Plot the results
 
 date <- Sys.Date()
-pdf(file=paste0("results/lda_", date, ".PDF"), 
+pdf(file=paste0("results/rf_", date, ".PDF"), 
     height = 6, width = 10)
 
 #plot
 ymax <- max(c(us_lda_vec, random_vec, qbc_vec,cluster_vec))
 graphics::plot(1:iter, perf_results, ylim = c(0, ymax), lwd = 2, type = "l", 
-               main="AL Error Ratio with LDA Classifier", xlab="Iterations", ylab="Error", col = "green")
+               main="AL Error Ratio with Random Forest Classifier", xlab="Iterations", ylab="Error", col = "green")
 graphics::lines(1:iter, random_vec, lwd = 2, col = "red")
 graphics::lines(1:iter, us_lda_vec, lwd = 2, col = "black")
 graphics::lines(1:iter, qbc_vec, lwd = 2, col = "blue")
@@ -196,4 +196,4 @@ graphics::legend(x="bottomleft",lwd=2,cex = 0.75,legend=
                  col=c("red","black","blue","darkturquoise","orange","green"))
 
 graphics.off()
-save.image(file = paste0("results/lda_", date, ".RData"))
+save.image(file = paste0("results/rf_", date, ".RData"))

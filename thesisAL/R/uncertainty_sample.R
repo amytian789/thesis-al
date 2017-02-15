@@ -26,7 +26,7 @@ uncertainty_sample <- function(X, y, unlabel_index_c, classifier, ...) {
   x_ulab <- X[unlabel_index_c,]
   
   tout <- caret::train(x_lab,y_lab,classifier)
-  p <- as.matrix(predict(tout, newdata=x_ulab, type="prob"))
+  p <- as.matrix(stats::predict(tout, newdata=x_ulab, type="prob"))
  
   # return corresponding X index of posterior closest to 0.5
   p <- apply(p, 1, function(x) abs(x[1]-0.5))

@@ -11,13 +11,13 @@ source("main/AL_data.R")
 # Generic classifier method: X and y contain labeled points
 # This is the MAIN overall classifier that will train on the data once the AL selection is completed
 classifier_method <- function(X, y, ...) {
-  MASS::lda(X, y)
+  caret::train(X,y,classifier="rf")
 }
 
 # Generic classifier method prediction: X contain all points to predict
 # This is the MAIN overall classifier that will train on the data once the AL selection is completed
 classifier_predict <- function(classifier, X, ...) {
-  stats::predict(classifier, X)$class
+  stats::predict(classifier, X)
 }
 
 # QBC classifier method: X and y contain labeled points
@@ -31,7 +31,7 @@ qbc_majority <- function(X, y, committee, ...) {
 
 # Generic error ratio: X contain all points. y are known labels (unknown to the learning algorithm)
 return_method <- function(classifier, X, y, ...) {
-  p <- stats::predict(classifier, X)$class
+  p <- stats::predict(classifier, X)
 
   length(which(p != y))/length(y)
 }
@@ -77,21 +77,22 @@ names(train)
 # Randomly select the dataset. a and b are the labels which we want to compare 
 # (a,b in [0,10]. We are only interested bivariate classification)
 set.seed(10)
-a <- 0
-b <- 1
-n <- 500 # desired dataset size
+a <- 7
+b <- 9
+n <- 250 # desired dataset size
+init <- 10 # desired number of points to initialize with
 idx <- c(sample(which(train$y == a),n/2),sample(which(train$y == b),n/2))
 X <- train$x[idx,]
 X <- t(apply(X,1,compressImg)) # compress from 28x28 to 14x14 pixels
-y <- train$y[idx] # y contains the "true" labels. y is never seen by the AL algorithms 
+y <- as.factor(train$y[idx]) # y contains the "true" labels. y is never seen by the AL algorithms 
 
 # Randomly select the initial points given to the AL algorithms
 set.seed(10)
 y_unlabeled <- y
-y_unlabeled[sample(1:n,180)] <- NA
+y_unlabeled[sample(1:n,n-init)] <- NA
 
 # Visual representation of the data
-plotTable(25,20,y,X)
+plotTable(13,20,y,X)
 
 
 
@@ -101,7 +102,7 @@ plotTable(25,20,y,X)
  
 s <- 15 # Number of random unlabeled points to "stream" to the AL method
         # n = 0 indicates that the AL stream should sample from all data points
-k <- 1 # Number of simulations to run
+k <- 25 # Number of simulations to run
 iter <- 50  # Number of AL algorithm iterations (the "budget")
 
 #initialize
@@ -121,28 +122,44 @@ for (i in 1:k){
   us_lda_results <- us_lda_results + 
                     AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "us", classifier_method = classifier_method,
                               return_method = return_method, iter = iter, n = s, 
-                              classifier = "lda")
-  
+                              classifier = "rf")
+  print(c("Trial ",i,"complete"))
+}
+
+set.seed(10)
+for (i in 1:k){
   ### To change the committee, you must set it in the AL_engine
   qbc_results <- qbc_results + 
                  AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = qbc_majority,
                           return_method = qbc_m_return, iter = iter, n = s, 
                           dis = "vote_entropy", pt = 0.75)
-  
+  print(c("Trial ",i,"complete"))
+}
+
+set.seed(10)
+for (i in 1:k){
   qbb_results <- qbb_results + 
                  AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbb", classifier_method = classifier_method,
                            return_method = return_method, iter = iter, n = s, 
                            classifier_train=classifier_method, classifier_predict=classifier_predict, 
                            num_class=10, r=0.75, dis = "vote_entropy")
-  
+  print(c("Trial ",i,"complete"))
+}
+
+set.seed(10)
+for (i in 1:k){
+  set.seed(10)
   cluster_results <- cluster_results + 
                      AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "cluster", classifier_method = classifier_method,
                               return_method = return_method, iter = iter, 
                               n = s, dis = "euclidean")
-  
+  print(c("Trial ",i,"complete"))
+}
+
+set.seed(10)
+for (i in 1:k){
   random_results <- random_results + 
                     AL_engine(X, y, y_unlabeled, al_method = "rs", classifier_method, return_method, iter, s)
-  
   print(c("Trial ",i,"complete"))
 }
 

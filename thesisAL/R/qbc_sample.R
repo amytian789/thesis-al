@@ -27,9 +27,9 @@ qbc_sample <- function(X, y, unlabel_index_c, committee, dis = "vote_entropy", .
   
   # Compute disagreement (utilizing the functions from the activelearning package)
   d <- switch(dis,
-              vote_entropy=vote_entropy(p, type="class"),
-              post_entropy=post_entropy(p, type="class"),
-              kullback=kullback(p, type="class")
+              vote_entropy=vote_entropy(p),
+              post_entropy=post_entropy(p),
+              kullback=kullback(p)
   )
   
   index <- unlabel_index_c[which(d == max(d))]
@@ -101,30 +101,15 @@ qbc_prune <- function(X, y, index, committee_pred, k, pt = 0.75, err, is_prune, 
 
 
 
-# Disagreement methods (From activeleaning package)
+# Disagreement method (From activeleaning package)
 #' @importFrom itertools2 izip
 #' @importFrom entropy entropy
 vote_entropy <- function(x, type='class', entropy_method='ML') {
+  print(x)
   it <- do.call(itertools2::izip, x)
   disagreement <- sapply(it, function(obs) {
     entropy::entropy(table(unlist(obs)), method=entropy_method)
   })
+  print(disagreement)
   disagreement
-}
-
-#' @importFrom entropy entropy.plugin
-post_entropy <- function(x, type='posterior') {
-  avg_post <- Reduce('+', x) / length(x)
-  apply(avg_post, 1, function(obs_post) {
-    entropy::entropy.plugin(obs_post)
-  })
-}
-
-kullback <- function(x, type='posterior') {
-  avg_post <- Reduce('+', x) / length(x)
-  kullback_members <- lapply(x, function(obs) {
-    rowSums(obs * log(obs / avg_post))
-  })
-  
-  Reduce('+', kullback_members) / length(kullback_members)
 }

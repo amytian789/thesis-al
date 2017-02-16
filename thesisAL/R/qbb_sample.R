@@ -33,9 +33,9 @@ qbb_sample <- function(X, y, unlabel_index_c, classifier_train, classifier_predi
   
   # Compute disagreement (utilizing the functions from the activelearning package)
   d <- switch(dis,
-              vote_entropy=vote_entropy(p, type="class"),
-              post_entropy=post_entropy(p, type="class"),
-              kullback=kullback(p, type="class")
+              vote_entropy=vote_entropy(p),
+              post_entropy=post_entropy(p),
+              kullback=kullback(p)
               )
   
   index <- unlabel_index_c[which(d == max(d))]

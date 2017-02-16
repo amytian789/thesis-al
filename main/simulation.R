@@ -106,7 +106,7 @@ k <- 25 # Number of simulations to run
 iter <- 50  # Number of AL algorithm iterations (the "budget")
 
 #initialize
-us_lda_results <- rep(0, iter)
+us_results <- rep(0, iter)
 qbc_results <- rep(0, iter)
 qbb_results <- rep(0, iter)
 cluster_results <- rep(0, iter)
@@ -119,7 +119,7 @@ perf_results <- rep(return_method(pred,X,y),iter)
 #run the engine (average over k = 1000 random samples)
 set.seed(10)
 for (i in 1:k){
-  us_lda_results <- us_lda_results + 
+  us_results <- us_results + 
                     AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "us", classifier_method = classifier_method,
                               return_method = return_method, iter = iter, n = s, 
                               classifier = "rf")
@@ -132,7 +132,7 @@ for (i in 1:k){
   qbc_results <- qbc_results + 
                  AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = qbc_majority,
                           return_method = qbc_m_return, iter = iter, n = s, 
-                          dis = "vote_entropy", pt = 0.75)
+                          dis = "vote_entropy", pt = 0.5)
   print(c("Trial ",i,"complete"))
 }
 
@@ -142,7 +142,7 @@ for (i in 1:k){
                  AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbb", classifier_method = classifier_method,
                            return_method = return_method, iter = iter, n = s, 
                            classifier_train=classifier_method, classifier_predict=classifier_predict, 
-                           num_class=10, r=0.75, dis = "vote_entropy")
+                           num_class=5, r=0.75, dis = "vote_entropy")
   print(c("Trial ",i,"complete"))
 }
 
@@ -164,7 +164,7 @@ for (i in 1:k){
 }
 
 # Average
-us_lda_vec <- us_lda_results / k
+us_vec <- us_results / k
 random_vec <- random_results / k
 qbc_vec <- qbc_results / k
 qbb_vec <- qbb_results / k
@@ -181,11 +181,11 @@ pdf(file=paste0("results/rf_", date, ".PDF"),
     height = 6, width = 10)
 
 #plot
-ymax <- max(c(us_lda_vec, random_vec, qbc_vec,cluster_vec))
+ymax <- max(c(us_vec, random_vec, qbc_vec,cluster_vec))
 graphics::plot(1:iter, perf_results, ylim = c(0, ymax), lwd = 2, type = "l", 
                main="AL Error Ratio with Random Forest Classifier", xlab="Iterations", ylab="Error", col = "green")
 graphics::lines(1:iter, random_vec, lwd = 2, col = "red")
-graphics::lines(1:iter, us_lda_vec, lwd = 2, col = "black")
+graphics::lines(1:iter, us_vec, lwd = 2, col = "black")
 graphics::lines(1:iter, qbc_vec, lwd = 2, col = "blue")
 graphics::lines(1:iter, qbb_vec, lwd = 2, col = "darkturquoise")
 graphics::lines(1:iter, cluster_vec, lwd = 2, col = "orange")

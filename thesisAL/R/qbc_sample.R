@@ -105,11 +105,9 @@ qbc_prune <- function(X, y, index, committee_pred, k, pt = 0.75, err, is_prune, 
 #' @importFrom itertools2 izip
 #' @importFrom entropy entropy
 vote_entropy <- function(x, type='class', entropy_method='ML') {
-  print(x)
   it <- do.call(itertools2::izip, x)
   disagreement <- sapply(it, function(obs) {
     entropy::entropy(table(unlist(obs)), method=entropy_method)
   })
-  print(disagreement)
   disagreement
 }

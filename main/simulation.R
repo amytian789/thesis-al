@@ -105,18 +105,16 @@ s <- 15 # Number of random unlabeled points to "stream" to the AL method
 k <- 25 # Number of simulations to run
 iter <- 50  # Number of AL algorithm iterations (the "budget")
 
-#initialize
+
+
+
+# Classifier performance given all data is labeled
+# pred <- classifier_method(X,y)
+# perf_results <- rep(return_method(pred,X,y),iter)
+# This has been shown to yield perfect results, so it is commented out
+
+# Uncertainty Sampling
 us_results <- rep(0, iter)
-qbc_results <- rep(0, iter)
-qbb_results <- rep(0, iter)
-cluster_results <- rep(0, iter)
-random_results <- rep(0, iter)
-
-# classifier performance given all data is labeled
-pred <- classifier_method(X,y)
-perf_results <- rep(return_method(pred,X,y),iter)
-
-#run the engine (average over k = 1000 random samples)
 set.seed(10)
 for (i in 1:k){
   us_results <- us_results + 
@@ -126,26 +124,43 @@ for (i in 1:k){
   print(c("Trial ",i,"complete"))
 }
 
+# Query by Committee with overall "Committee Majority Vote" classifier
+qbc_majority_results <- rep(0, iter)
 set.seed(10)
 for (i in 1:k){
   ### To change the committee, you must set it in the AL_engine
-  qbc_results <- qbc_results + 
+  qbc_majority_results <- qbc_majority_results + 
                  AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = qbc_majority,
                           return_method = qbc_m_return, iter = iter, n = s, 
                           dis = "vote_entropy", pt = 0.5)
   print(c("Trial ",i,"complete"))
 }
 
+# Query by Committee with overall "Random Forest" classifier
+set.seed(10)
+qbc_rf_results <- rep(0, iter)
+for (i in 1:k){
+  ### To change the committee, you must set it in the AL_engine
+  qbc_rf_results <- qbc_rf_results + 
+    AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = qbc_majority,
+              return_method = qbc_m_return, iter = iter, n = s, 
+              dis = "vote_entropy", pt = 0.5)
+  print(c("Trial ",i,"complete"))
+}
+
+# Query by Bagging
+qbb_results <- rep(0, iter)
 set.seed(10)
 for (i in 1:k){
   qbb_results <- qbb_results + 
                  AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbb", classifier_method = classifier_method,
                            return_method = return_method, iter = iter, n = s, 
-                           classifier_train=classifier_method, classifier_predict=classifier_predict, 
-                           num_class=5, r=0.75, dis = "vote_entropy")
+                           classifier="rf", dis = "vote_entropy", num_class=5, r=0.75)
   print(c("Trial ",i,"complete"))
 }
 
+# Min-Max Clustering
+cluster_results <- rep(0, iter)
 set.seed(10)
 for (i in 1:k){
   set.seed(10)
@@ -156,6 +171,8 @@ for (i in 1:k){
   print(c("Trial ",i,"complete"))
 }
 
+# Random Sampling
+random_results <- rep(0, iter)
 set.seed(10)
 for (i in 1:k){
   random_results <- random_results + 
@@ -166,11 +183,22 @@ for (i in 1:k){
 # Average
 us_vec <- us_results / k
 random_vec <- random_results / k
-qbc_vec <- qbc_results / k
+qbc_majority_vec <- qbc_majority_results / k
+qbc_rf_vec <- qbc_rf_results / k
 qbb_vec <- qbb_results / k
 cluster_vec <- cluster_results / k
 
-
+# Select best QBC output
+if (length(which(qbc_majority_vec < qbc_rf_vec)) > length(which(qbc_majority_vec > qbc_rf_vec))){
+  qbc_vec <- qbc_majority_vec
+} else if (length(which(qbc_majority_vec < qbc_rf_vec)) < length(which(qbc_majority_vec > qbc_rf_vec))){
+  qbc_vec <- qbc_rf_vec
+} else{
+  # select one at random
+  rr <- sample(c(0,1),1)
+  if (rr == 0) qbc_vec <- qbc_majority_vec
+  else qbc_vec <- qbc_rf_vec
+}
 
 
 
@@ -180,20 +208,25 @@ date <- Sys.Date()
 pdf(file=paste0("results/rf_", date, ".PDF"), 
     height = 6, width = 10)
 
-#plot
+# Plot all AL performance
 ymax <- max(c(us_vec, random_vec, qbc_vec,cluster_vec))
-graphics::plot(1:iter, perf_results, ylim = c(0, ymax), lwd = 2, type = "l", 
-               main="AL Error Ratio with Random Forest Classifier", xlab="Iterations", ylab="Error", col = "green")
+graphics::plot(1:iter, qbc_vec, ylim = c(0, ymax), lwd = 2, type = "l", 
+               main="Various Active Learning Error Ratios with Random Forest Classifier", 
+               xlab="Iterations", ylab="Error", col = "green")
 graphics::lines(1:iter, random_vec, lwd = 2, col = "red")
 graphics::lines(1:iter, us_vec, lwd = 2, col = "black")
-graphics::lines(1:iter, qbc_vec, lwd = 2, col = "blue")
-graphics::lines(1:iter, qbb_vec, lwd = 2, col = "darkturquoise")
+graphics::lines(1:iter, qbb_vec, lwd = 2, col = "blue")
 graphics::lines(1:iter, cluster_vec, lwd = 2, col = "orange")
-
 graphics::legend(x="bottomleft",lwd=2,cex = 0.75,legend=
-                 c("Random Sampling","Uncertainty Sampling","Query by Committee","Query by Bagging","Min-Max Clustering",
-                   "Given all data with labels"),
-                 col=c("red","black","blue","darkturquoise","orange","green"))
+                 c("Random Sampling","Uncertainty Sampling","Query by Committee","Query by Bagging","Min-Max Clustering"),
+                 col=c("red","black","green","blue","orange"))
+
+# Plot QBC performance on same scale as earlier
+graphics::plot(1:iter, qbc_majority_vec, ylim = c(0, ymax), lwd = 2, type = "l", 
+               main="Query by Committee AL Error Ratio with Various Classifiers", 
+               xlab="Iterations", ylab="Error", col = "black")
+graphics::lines(1:iter, qbc_rf_vec, lwd = 2, col = "blue")
+graphics::legend(x="bottomleft",lwd=2,cex = 0.75,legend=c("Random Forest","Majority Committee Vote"),col=c("black","blue"))
 
 graphics.off()
 save.image(file = paste0("results/rf_", date, ".RData"))

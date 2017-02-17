@@ -11,7 +11,7 @@ source("main/AL_data.R")
 # Generic classifier method: X and y contain labeled points
 # This is the MAIN overall classifier that will train on the data once the AL selection is completed
 classifier_method <- function(X, y, ...) {
-  caret::train(X,y,classifier="rf")
+  caret::train(X,y,method="rf")
 }
 
 # Generic classifier method prediction: X contain all points to predict

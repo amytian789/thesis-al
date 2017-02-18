@@ -23,7 +23,8 @@ qbb_vec <- qbb_voteentropy_vec
 # Query by Committee
 load("results/qbc_majority_2017-02-17.RData")
 qbc_majority_vec <- qbc_majority_vec
-qbc_rf_vec <- rep(0,50)
+load("results/qbc_rf_2017-02-18.RData")
+qbc_rf_vec <- qbc_rf_vec
 
 # Select best QBC output
 if (length(which(qbc_majority_vec < qbc_rf_vec)) > length(which(qbc_majority_vec > qbc_rf_vec))){

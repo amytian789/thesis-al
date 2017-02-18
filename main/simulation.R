@@ -46,7 +46,7 @@ qbc_m_return <- function(tout, X, y, committee, ...) {
   ap <- rep(0,length(y))
   for (i in 1:length(y)){
     temp <- as.numeric(as.character(p[[1]][i]))
-    for (j in 2:length(committee)){
+    for (j in 1:length(committee)){
       temp <- c(temp,as.numeric(as.character(p[[j]][i])))
     }
     # error checking if a value doesn't appear at all
@@ -142,8 +142,8 @@ qbc_rf_results <- rep(0, iter)
 for (i in 1:k){
   ### To change the committee, you must set it in the AL_engine
   qbc_rf_results <- qbc_rf_results + 
-    AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = qbc_majority,
-              return_method = qbc_m_return, iter = iter, n = s, 
+    AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = classifier_method,
+              return_method = return_method, iter = iter, n = s, 
               dis = "vote_entropy", pt = 0.5)
   print(c("Trial ",i,"complete"))
 }

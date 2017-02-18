@@ -9,7 +9,7 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
   res <- rep(0,iter)
   
   ### SET THE COMMITTEE HERE
-  cm <- c("lda","ranger")
+  cm <- c("rf","nb","pls","svmRadialWeights")
   err<- rep(0,length(cm))
   
   for(i in 1:iter){
@@ -45,6 +45,8 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
     idx <- which(!is.na(y_unlabeled))
     classifier <- classifier_method(X[idx,], y_unlabeled[idx], committee = cm)
     res[i] <- return_method(classifier, X, y, committee = cm)
+
+    if (i == 45) print(cm)
   }
   
   res

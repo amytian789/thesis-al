@@ -20,6 +20,7 @@ qbc_sample <- function(X, y, unlabel_index_c, committee, dis = "vote_entropy", .
   x_ulab <- X[unlabel_index_c,]
   
   p <- vector("list",length(committee))
+
   for (i in 1:length(committee)) {
     tout <- caret::train(x_lab,y_lab,committee[i])
     p[[i]] <- predict(tout, newdata=x_ulab)

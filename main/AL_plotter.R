@@ -21,7 +21,8 @@ load("results/qbb_voteentropy_2017-02-16.RData")
 qbb_vec <- qbb_voteentropy_vec
 
 # Query by Committee
-qbc_majority_vec <- rep(0,50)
+load("results/qbc_majority_2017-02-17.RData")
+qbc_majority_vec <- qbc_majority_vec
 qbc_rf_vec <- rep(0,50)
 
 # Select best QBC output

@@ -25,17 +25,55 @@ load("results/qbc_majority_2017-02-17.RData")
 qbc_majority_vec <- qbc_majority_vec
 load("results/qbc_rf_2017-02-18.RData")
 qbc_rf_vec <- qbc_rf_vec
+load("results/qbc_majority_noprune_2017-02-18.RData")
+qbc_majority_noprune_vec <- qbc_majority_noprune_vec
+
+qbc_rf_noprune_vec <- rep(0,50)
 
 # Select best QBC output
+# if (length(which(qbc_majority_vec < qbc_rf_vec)) > length(which(qbc_majority_vec > qbc_rf_vec))){
+#   qbc_vec <- qbc_majority_vec
+# } else if (length(which(qbc_majority_vec < qbc_rf_vec)) < length(which(qbc_majority_vec > qbc_rf_vec))){
+#   qbc_vec <- qbc_rf_vec
+# } else{
+#   # select one at random
+#   rr <- sample(c(0,1),1)
+#   if (rr == 0) qbc_vec <- qbc_majority_vec
+#   else qbc_vec <- qbc_rf_vec
+# }
+
+# Select best QBC output (with pruning)
 if (length(which(qbc_majority_vec < qbc_rf_vec)) > length(which(qbc_majority_vec > qbc_rf_vec))){
-  qbc_vec <- qbc_majority_vec
+  qbc_prune_vec <- qbc_majority_vec
 } else if (length(which(qbc_majority_vec < qbc_rf_vec)) < length(which(qbc_majority_vec > qbc_rf_vec))){
-  qbc_vec <- qbc_rf_vec
+  qbc_prune_vec <- qbc_rf_vec
 } else{
   # select one at random
   rr <- sample(c(0,1),1)
-  if (rr == 0) qbc_vec <- qbc_majority_vec
-  else qbc_vec <- qbc_rf_vec
+  if (rr == 0) qbc_prune_vec <- qbc_majority_vec
+  else qbc_prune_vec <- qbc_rf_vec
+}
+# Select best QBC output (with no pruning)
+if (length(which(qbc_majority_noprune_vec < qbc_rf_noprune_vec)) > length(which(qbc_majority_noprune_vec > qbc_rf_noprune_vec))){
+  qbc_noprune_vec <- qbc_majority_noprune_vec
+} else if (length(which(qbc_majority_noprune_vec < qbc_rf_noprune_vec)) < length(which(qbc_majority_noprune_vec > qbc_rf_noprune_vec))){
+  qbc_noprune_vec <- qbc_rf_noprune_vec
+} else{
+  # select one at random
+  rr <- sample(c(0,1),1)
+  if (rr == 0) qbc_noprune_vec <- qbc_majority_noprune_vec
+  else qbc_noprune_vec <- qbc_rf_noprune_vec
+}
+# Select best overall QBC output
+if (length(which(qbc_prune_vec < qbc_noprune_vec)) > length(which(qbc_prune_vec > qbc_noprune_vec))){
+  qbc_vec <- qbc_prune_vec
+} else if (length(which(qbc_prune_vec < qbc_noprune_vec)) < length(which(qbc_prune_vec > qbc_noprune_vec))){
+  qbc_vec <- qbc_noprune_vec
+} else{
+  # select one at random
+  rr <- sample(c(0,1),1)
+  if (rr == 0) qbc_vec <- qbc_prune_vec
+  else qbc_vec <- qbc_noprune_vec
 }
 
 ################################### Plot the results
@@ -62,7 +100,12 @@ graphics::plot(1:iter, qbc_majority_vec, ylim = c(0, ymax), lwd = 2, type = "l",
                main="Query by Committee AL Error Ratio with Various Classifiers", 
                xlab="Iterations", ylab="Error", col = "black")
 graphics::lines(1:iter, qbc_rf_vec, lwd = 2, col = "blue")
-graphics::legend(x="bottomleft",lwd=2,cex = 0.75,legend=c("Random Forest","Majority Committee Vote"),col=c("black","blue"))
+graphics::lines(1:iter, qbc_majority_noprune_vec, lwd = 2, col = "red")
+graphics::lines(1:iter, qbc_rf_noprune_vec, lwd = 2, col = "orange")
+graphics::legend(x="bottomleft",lwd=2,cex = 0.75,
+                 legend=c("Majority Committee Vote (Pruning)", "Majority Committee Vote (No Pruning)",
+                          "Random Forest (Pruning)", "Random Forest (No Pruning)"),
+                 col=c("black","red","blue","orange"))
 
 graphics.off()
 save.image(file = paste0("results/rf_", date, ".RData"))

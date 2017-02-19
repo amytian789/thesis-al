@@ -136,12 +136,38 @@ for (i in 1:k){
   print(c("Trial ",i,"complete"))
 }
 
+# Query by Committee with overall "Committee Majority Vote" classifier
+# no pruning
+qbc_majority_noprune_results <- rep(0, iter)
+set.seed(10)
+for (i in 1:k){
+  ### To change the committee, you must set it in the AL_engine
+  qbc_majority_noprune_results <- qbc_majority_noprune_results + 
+    AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = classifier_method,
+              return_method = return_method, iter = iter, n = s, 
+              dis = "vote_entropy", pt = 0.5)
+  print(c("Trial ",i,"complete"))
+}
+
 # Query by Committee with overall "Random Forest" classifier
 set.seed(10)
 qbc_rf_results <- rep(0, iter)
 for (i in 1:k){
   ### To change the committee, you must set it in the AL_engine
   qbc_rf_results <- qbc_rf_results + 
+    AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = classifier_method,
+              return_method = return_method, iter = iter, n = s, 
+              dis = "vote_entropy", pt = 0.5)
+  print(c("Trial ",i,"complete"))
+}
+
+# Query by Committee with overall "Random Forest" classifier
+# no pruning
+qbc_rf_noprune_results <- rep(0, iter)
+set.seed(10)
+for (i in 1:k){
+  ### To change the committee, you must set it in the AL_engine
+  qbc_rf_noprune_results <- qbc_rf_noprune_results + 
     AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = classifier_method,
               return_method = return_method, iter = iter, n = s, 
               dis = "vote_entropy", pt = 0.5)
@@ -188,18 +214,39 @@ qbc_rf_vec <- qbc_rf_results / k
 qbb_vec <- qbb_results / k
 cluster_vec <- cluster_results / k
 
-# Select best QBC output
+# Select best QBC output (with pruning)
 if (length(which(qbc_majority_vec < qbc_rf_vec)) > length(which(qbc_majority_vec > qbc_rf_vec))){
-  qbc_vec <- qbc_majority_vec
+  qbc_prune_vec <- qbc_majority_vec
 } else if (length(which(qbc_majority_vec < qbc_rf_vec)) < length(which(qbc_majority_vec > qbc_rf_vec))){
-  qbc_vec <- qbc_rf_vec
+  qbc_prune_vec <- qbc_rf_vec
 } else{
   # select one at random
   rr <- sample(c(0,1),1)
-  if (rr == 0) qbc_vec <- qbc_majority_vec
-  else qbc_vec <- qbc_rf_vec
+  if (rr == 0) qbc_prune_vec <- qbc_majority_vec
+  else qbc_prune_vec <- qbc_rf_vec
 }
-
+# Select best QBC output (with no pruning)
+if (length(which(qbc_majority_noprune_vec < qbc_rf_noprune_vec)) > length(which(qbc_majority_noprune_vec > qbc_rf_noprune_vec))){
+  qbc_noprune_vec <- qbc_majority_noprune_vec
+} else if (length(which(qbc_majority_noprune_vec < qbc_rf_noprune_vec)) < length(which(qbc_majority_noprune_vec > qbc_rf_noprune_vec))){
+  qbc_noprune_vec <- qbc_rf_noprune_vec
+} else{
+  # select one at random
+  rr <- sample(c(0,1),1)
+  if (rr == 0) qbc_noprune_vec <- qbc_majority_noprune_vec
+  else qbc_noprune_vec <- qbc_rf_noprune_vec
+}
+# Select best overall QBC output
+if (length(which(qbc_prune_vec < qbc_noprune_vec)) > length(which(qbc_prune_vec > qbc_noprune_vec))){
+  qbc_vec <- qbc_prune_vec
+} else if (length(which(qbc_prune_vec < qbc_noprune_vec)) < length(which(qbc_prune_vec > qbc_noprune_vec))){
+  qbc_vec <- qbc_noprune_vec
+} else{
+  # select one at random
+  rr <- sample(c(0,1),1)
+  if (rr == 0) qbc_vec <- qbc_prune_vec
+  else qbc_vec <- qbc_noprune_vec
+}
 
 
 ################################### Plot the results

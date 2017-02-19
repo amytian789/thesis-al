@@ -1,13 +1,12 @@
-#' Query by Committee
+#' Query by Min-Max Clustering
 #'
 #' @param X the full data matrix, n x d, including all unlabeled data
 #' @param y a factor vector with 2 levels and NAs for unlabeled data
 #' @param unlabel_index_c is a vector of n pre-selected indices that the AL method may choose from 
-#' @param committee the list of committee classifiers
-#' @param dis is the disagreement measure between committee classifications
+#' @param dis is the distance measure between data
 #' @param ... additional parameters for the active learning method
 #'
-#' @return a vector of indices to query AND the committee predictions of this round
+#' @return a vector of indices to query
 #' @export
 cluster_sample <- function(X, y, unlabel_index_c, dis = "euclidean", ...) {
   label_index <- which(!is.na(y))
@@ -29,16 +28,14 @@ cluster_sample <- function(X, y, unlabel_index_c, dis = "euclidean", ...) {
   unlabel_index_c[which(q==max(q))]
 }
 
-
-
-
-
+# General Support Function for Distance Computation
 cs_distance <- function(a,b,dis = "euclidean"){
   d <- switch(dis,
          euclidean=cs_euclidean_distance(a,b)
          )
 }
 
+# Euclidean Distance Computation
 cs_euclidean_distance <- function(a,b) {
   sqrt( sum( mapply( function(x,y) (x-y)^2, a, b)))
 }

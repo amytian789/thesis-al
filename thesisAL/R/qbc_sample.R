@@ -28,7 +28,7 @@ qbc_sample <- function(X, y, unlabel_index_c, committee, dis = "vote_entropy", i
   } else {
     # Reuse the trained classifiers from the majority vote call
     for (i in 1:length(committee)) {
-      p[[i]] <- predict(tout, newdata=x_ulab)
+      p[[i]] <- predict(tout[[i]], newdata=x_ulab)
     }
   }
 

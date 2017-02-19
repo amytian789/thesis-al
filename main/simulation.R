@@ -130,9 +130,9 @@ set.seed(10)
 for (i in 1:k){
   ### To change the committee, you must set it in the AL_engine
   qbc_majority_results <- qbc_majority_results + 
-                 AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = qbc_majority,
-                          return_method = qbc_m_return, iter = iter, n = s, 
-                          dis = "vote_entropy", pt = 0.5)
+    AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = qbc_majority,
+              return_method = qbc_m_return, iter = iter, n = s, 
+              dis = "vote_entropy", pt = 0.5)
   print(c("Trial ",i,"complete"))
 }
 
@@ -143,8 +143,8 @@ set.seed(10)
 for (i in 1:k){
   ### To change the committee, you must set it in the AL_engine
   qbc_majority_noprune_results <- qbc_majority_noprune_results + 
-    AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = classifier_method,
-              return_method = return_method, iter = iter, n = s, 
+    AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", classifier_method = qbc_majority,
+              return_method = qbc_m_return, iter = iter, n = s, 
               dis = "vote_entropy", pt = 0.5)
   print(c("Trial ",i,"complete"))
 }

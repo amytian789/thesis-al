@@ -25,10 +25,10 @@ load("results/qbc_majority_2017-02-17.RData")
 qbc_majority_vec <- qbc_majority_vec
 load("results/qbc_rf_2017-02-18.RData")
 qbc_rf_vec <- qbc_rf_vec
-load("results/qbc_majority_noprune_2017-02-18.RData")
+load("results/qbc_rf_noprune_2017-02-18.RData")
+qbc_rf_noprune_vec <- qbc_rf_noprune_vec
+load("results/qbc_majority_noprune_2017-02-19.RData")
 qbc_majority_noprune_vec <- qbc_majority_noprune_vec
-
-qbc_rf_noprune_vec <- rep(0,50)
 
 # Select best QBC output
 # if (length(which(qbc_majority_vec < qbc_rf_vec)) > length(which(qbc_majority_vec > qbc_rf_vec))){

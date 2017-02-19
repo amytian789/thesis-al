@@ -15,7 +15,7 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
   for(i in 1:iter){
     # If QBC, the procedure is a little different....
     if (al_method == "qbc") {
-      if (iter != 1 & as.character(substitute(classifier_method))=="qbc_majority") {
+      if (i != 1 & as.character(substitute(classifier_method))=="qbc_majority") {
         # Since the QBC Majority method re-trains the committee members after the oracle
         # We can save computation time by using those results and passing it to the QBC sampler
         next_sample <- active_learning(X=X, y=y_unlabeled, almethod=al_method, n=n, committee = cm, 
@@ -25,7 +25,7 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
       }
       y_unlabeled[next_sample[[1]]] <- y[next_sample[[1]]]
       
-#       # Update error and prune as desired
+      # Update error and prune as desired
 #       if (i > iter/2) {
 #         prune <- active_learning(X=X, y=y_unlabeled, almethod="qbc_prune", n = n, index=next_sample[[1]],
 #                                 committee_pred=next_sample[[2]], k = i, err = err, is_prune = TRUE, ...)

@@ -6,7 +6,7 @@
 #' @param dis is the distance measure between data
 #' @param ... additional parameters for the active learning method
 #'
-#' @return a vector of indices to query
+#' @return an index to query
 #' @export
 
 cluster_sample <- function(X,y,unlabel_index_c,dis="euclidean",...){
@@ -27,7 +27,9 @@ cluster_sample <- function(X,y,unlabel_index_c,dis="euclidean",...){
     }
     q[i] <- min
   }
-  unlabel_index_c[which(q==max(q))]
+  index <- unlabel_index_c[which(q==max(q))]
+  if (length(index) > 1) index <- sample(index,1)
+  index
 }
 
 # Main distance engine

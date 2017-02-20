@@ -6,76 +6,76 @@ setwd("C:/Users/amyti/Documents/Amy - COLLEGE/THESIS/thesis-al/")
 
 # Random Sampling
 load("results/rs_2017-02-15.RData")
-random_vec <- random_vec
+randomvec <- random_vec
 
 # Uncertainty Sampling
 load("results/us_2017-02-15.RData")
-us_vec <- us_lda_vec
+usvec <- us_lda_vec
 
 # Clustering
 load("results/cluster_2017-02-15.RData")
-cluster_vec <- cluster_vec
+clustervec <- cluster_vec
 
 # Query by Bagging
 load("results/qbb_voteentropy_2017-02-16.RData")
-qbb_vec <- qbb_voteentropy_vec
+qbbvec <- qbb_voteentropy_vec
 
 # Query by Committee
 load("results/qbc_majority_2017-02-17.RData")
-qbc_majority_vec <- qbc_majority_vec
+qbc_majorityvec <- qbc_majority_vec
 load("results/qbc_rf_2017-02-18.RData")
-qbc_rf_vec <- qbc_rf_vec
+qbc_rfvec <- qbc_rf_vec
 
 # Query by Committee (no committee pruning)
 load("results/qbc_rf_noprune_2017-02-18.RData")
-qbc_rf_noprune_vec <- qbc_rf_noprune_vec
+qbc_rf_noprunevec <- qbc_rf_noprune_vec
 load("results/qbc_majority_noprune_2017-02-19.RData")
-qbc_majority_noprune_vec <- qbc_majority_noprune_vec
+qbc_majority_noprunevec <- qbc_majority_noprune_vec
 
 # Select best QBC output
-# if (length(which(qbc_majority_vec < qbc_rf_vec)) > length(which(qbc_majority_vec > qbc_rf_vec))){
-#   qbc_vec <- qbc_majority_vec
-# } else if (length(which(qbc_majority_vec < qbc_rf_vec)) < length(which(qbc_majority_vec > qbc_rf_vec))){
-#   qbc_vec <- qbc_rf_vec
+# if (length(which(qbc_majorityvec < qbc_rfvec)) > length(which(qbc_majorityvec > qbc_rfvec))){
+#   qbcvec <- qbc_majorityvec
+# } else if (length(which(qbc_majorityvec < qbc_rfvec)) < length(which(qbc_majorityvec > qbc_rfvec))){
+#   qbcvec <- qbc_rfvec
 # } else{
 #   # select one at random
 #   rr <- sample(c(0,1),1)
-#   if (rr == 0) qbc_vec <- qbc_majority_vec
-#   else qbc_vec <- qbc_rf_vec
+#   if (rr == 0) qbcvec <- qbc_majorityvec
+#   else qbcvec <- qbc_rfvec
 # }
 
 # Select best QBC output (with pruning)
-if (length(which(qbc_majority_vec < qbc_rf_vec)) > length(which(qbc_majority_vec > qbc_rf_vec))){
-  qbc_prune_vec <- qbc_majority_vec
-} else if (length(which(qbc_majority_vec < qbc_rf_vec)) < length(which(qbc_majority_vec > qbc_rf_vec))){
-  qbc_prune_vec <- qbc_rf_vec
+if (length(which(qbc_majorityvec < qbc_rfvec)) > length(which(qbc_majorityvec > qbc_rfvec))){
+  qbc_prunevec <- qbc_majorityvec
+} else if (length(which(qbc_majorityvec < qbc_rfvec)) < length(which(qbc_majorityvec > qbc_rfvec))){
+  qbc_prunevec <- qbc_rfvec
 } else{
   # select one at random
   rr <- sample(c(0,1),1)
-  if (rr == 0) qbc_prune_vec <- qbc_majority_vec
-  else qbc_prune_vec <- qbc_rf_vec
+  if (rr == 0) qbc_prune_vec <- qbc_majorityvec
+  else qbc_prune_vec <- qbc_rfvec
 }
 # Select best QBC output (with no pruning)
-if (length(which(qbc_majority_noprune_vec < qbc_rf_noprune_vec)) > length(which(qbc_majority_noprune_vec > qbc_rf_noprune_vec))){
-  qbc_noprune_vec <- qbc_majority_noprune_vec
-} else if (length(which(qbc_majority_noprune_vec < qbc_rf_noprune_vec)) < length(which(qbc_majority_noprune_vec > qbc_rf_noprune_vec))){
-  qbc_noprune_vec <- qbc_rf_noprune_vec
+if (length(which(qbc_majority_noprunevec < qbc_rf_noprunevec)) > length(which(qbc_majority_noprunevec > qbc_rf_noprunevec))){
+  qbc_noprune_vec <- qbc_majority_noprunevec
+} else if (length(which(qbc_majority_noprunevec < qbc_rf_noprunevec)) < length(which(qbc_majority_noprunevec > qbc_rf_noprunevec))){
+  qbc_noprune_vec <- qbc_rf_noprunevec
 } else{
   # select one at random
   rr <- sample(c(0,1),1)
-  if (rr == 0) qbc_noprune_vec <- qbc_majority_noprune_vec
-  else qbc_noprune_vec <- qbc_rf_noprune_vec
+  if (rr == 0) qbc_noprune_vec <- qbc_majority_noprunevec
+  else qbc_noprune_vec <- qbc_rf_noprunevec
 }
 # Select best overall QBC output
 if (length(which(qbc_prune_vec < qbc_noprune_vec)) > length(which(qbc_prune_vec > qbc_noprune_vec))){
-  qbc_vec <- qbc_prune_vec
+  qbcvec <- qbc_prune_vec
 } else if (length(which(qbc_prune_vec < qbc_noprune_vec)) < length(which(qbc_prune_vec > qbc_noprune_vec))){
-  qbc_vec <- qbc_noprune_vec
+  qbcvec <- qbc_noprune_vec
 } else{
   # select one at random
   rr <- sample(c(0,1),1)
-  if (rr == 0) qbc_vec <- qbc_prune_vec
-  else qbc_vec <- qbc_noprune_vec
+  if (rr == 0) qbcvec <- qbc_prune_vec
+  else qbcvec <- qbc_noprune_vec
 }
 
 ################################### Plot the results
@@ -85,25 +85,25 @@ pdf(file=paste0("results/rf_", date, ".PDF"),
     height = 6, width = 10)
 
 # Plot all AL performance
-ymax <- max(c(us_vec, random_vec, qbc_vec,cluster_vec))
-graphics::plot(1:iter, qbc_vec, ylim = c(0, ymax), lwd = 2, type = "l", 
+ymax <- max(c(usvec, randomvec, qbcvec, clustervec))
+graphics::plot(1:iter, qbcvec, ylim = c(0, ymax), lwd = 2, type = "l", 
                main="Various Active Learning Error Ratios with Random Forest Classifier", 
                xlab="Iterations", ylab="Error", col = "green")
-graphics::lines(1:iter, random_vec, lwd = 2, col = "red")
-graphics::lines(1:iter, us_vec, lwd = 2, col = "black")
-graphics::lines(1:iter, qbb_vec, lwd = 2, col = "blue")
-graphics::lines(1:iter, cluster_vec, lwd = 2, col = "orange")
+graphics::lines(1:iter, randomvec, lwd = 2, col = "red")
+graphics::lines(1:iter, usvec, lwd = 2, col = "black")
+graphics::lines(1:iter, qbbvec, lwd = 2, col = "blue")
+graphics::lines(1:iter, clustervec, lwd = 2, col = "orange")
 graphics::legend(x="bottomleft",lwd=2,cex = 0.75,legend=
                  c("Random Sampling","Uncertainty Sampling","Query by Committee","Query by Bagging","Min-Max Clustering"),
                  col=c("red","black","green","blue","orange"))
 
 # Plot QBC performance on same scale as earlier
-graphics::plot(1:iter, qbc_majority_vec, ylim = c(0, ymax), lwd = 2, type = "l", 
+graphics::plot(1:iter, qbc_majorityvec, ylim = c(0, ymax), lwd = 2, type = "l", 
                main="Query by Committee AL Error Ratio with Various Classifiers", 
                xlab="Iterations", ylab="Error", col = "black")
-graphics::lines(1:iter, qbc_rf_vec, lwd = 2, col = "blue")
-graphics::lines(1:iter, qbc_majority_noprune_vec, lwd = 2, col = "red")
-graphics::lines(1:iter, qbc_rf_noprune_vec, lwd = 2, col = "orange")
+graphics::lines(1:iter, qbc_rfvec, lwd = 2, col = "blue")
+graphics::lines(1:iter, qbc_majority_noprunevec, lwd = 2, col = "red")
+graphics::lines(1:iter, qbc_rf_noprunevec, lwd = 2, col = "orange")
 graphics::legend(x="bottomleft",lwd=2,cex = 0.75,
                  legend=c("Majority Committee Vote (Pruning)", "Majority Committee Vote (No Pruning)",
                           "Random Forest (Pruning)", "Random Forest (No Pruning)"),

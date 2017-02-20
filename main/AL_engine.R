@@ -26,10 +26,9 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
       y_unlabeled[next_sample[[1]]] <- y[next_sample[[1]]]
       
       # Update error and prune committee
-      ### COMMENT OUT if not committee pruning is desired
       if (i > iter/2) {
         prune <- active_learning(X=X, y=y_unlabeled, almethod="qbc_prune", n = 0, index=next_sample[[1]],
-                                committee_pred=next_sample[[2]], k = i, err = err, is_prune = TRUE, ...)
+                                 committee_pred=next_sample[[2]], k = i, err = err, is_prune = TRUE, ...)
         err <- prune[[1]]
         # check if there's stuff to prune
         if (length(prune[[2]] != 0)) {
@@ -43,7 +42,7 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
         err <- prune[[1]]
       }
       
-      # Compute residual error (committee slot is not used if not QBC method)
+      # Compute residual error
       idx <- which(!is.na(y_unlabeled))
       tout <- classifier_method(X[idx,], y_unlabeled[idx], committee = cm)
       res[i] <- return_method(tout, X, y, committee = cm)

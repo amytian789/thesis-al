@@ -28,7 +28,7 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
       # Update error and prune committee
       ### COMMENT OUT if not committee pruning is desired
       if (i > iter/2) {
-        prune <- active_learning(X=X, y=y_unlabeled, almethod="qbc_prune", n = n, index=next_sample[[1]],
+        prune <- active_learning(X=X, y=y_unlabeled, almethod="qbc_prune", n = 0, index=next_sample[[1]],
                                 committee_pred=next_sample[[2]], k = i, err = err, is_prune = TRUE, ...)
         err <- prune[[1]]
         # check if there's stuff to prune
@@ -38,7 +38,7 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
         }
       }
       else {
-        prune <- active_learning(X=X, y=y_unlabeled, almethod="qbc_prune", n = n, index=next_sample[[1]],
+        prune <- active_learning(X=X, y=y_unlabeled, almethod="qbc_prune", n = 0, index=next_sample[[1]],
                                  committee_pred=next_sample[[2]], k = i, err = err, is_prune = FALSE, ...)
         err <- prune[[1]]
       }

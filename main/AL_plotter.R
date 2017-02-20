@@ -25,6 +25,8 @@ load("results/qbc_majority_2017-02-17.RData")
 qbc_majority_vec <- qbc_majority_vec
 load("results/qbc_rf_2017-02-18.RData")
 qbc_rf_vec <- qbc_rf_vec
+
+# Query by Committee (no committee pruning)
 load("results/qbc_rf_noprune_2017-02-18.RData")
 qbc_rf_noprune_vec <- qbc_rf_noprune_vec
 load("results/qbc_majority_noprune_2017-02-19.RData")
@@ -108,4 +110,4 @@ graphics::legend(x="bottomleft",lwd=2,cex = 0.75,
                  col=c("black","red","blue","orange"))
 
 graphics.off()
-save.image(file = paste0("results/rf_", date, ".RData"))
+save.image(file = paste0("results/results_", date, ".RData"))

@@ -2,17 +2,20 @@
 #'
 #' @param X the full data matrix, n x d, including all unlabeled data
 #' @param y a factor vector with 2 levels and NAs for unlabeled data
-#' @param unlabel_index_c is a vector of n pre-selected indices that the AL method may choose from 
+#' @param unlabel_index_c is a vector of n pre-selected (pooled) indices
 #' @param classifier the name of a classification model
 #' @param dis is the disagreement measure between committee classifications
-#' @param num_class is the number of times to randomly sample the training set for a new committee classifier 
-#' @param r in (0,1). r*(# of labeled points) = # of points to randomly sample for each of the num_class rounds
+#' @param num_class is the number of desired committee members
+#' @param r in (0,1). r*(labeled set) = training set for each num_class round
 #' @param ... additional parameters for the active learning method
 #'
 #' @return an index to query
 #' @export
-qbb_sample <- function(X, y, unlabel_index_c, classifier, dis = "vote_entropy", num_class, r, ...){
-  if(r<=0 || r>=1) stop("r must be in (0,1). r*(# of labeled points) = # of points to randomly sample for each of the num_class rounds")
+
+qbb_sample <- function(X, y, unlabel_index_c, classifier, 
+                       dis = "vote_entropy", num_class, r, ...){
+  
+  if(r<=0 || r>=1) stop("r must be in (0,1)")
   
   x_ulab <- X[unlabel_index_c,]
   
@@ -30,7 +33,7 @@ qbb_sample <- function(X, y, unlabel_index_c, classifier, dis = "vote_entropy", 
     p[[i]] <- stats::predict(committee[[i]], x_ulab)
   }
   
-  # Compute disagreement (utilizing the functions from the activelearning package)
+  # Compute disagreement (functions from the activelearning package)
   d <- switch(dis,
               vote_entropy=vote_entropy(p),
               post_entropy=post_entropy(p),

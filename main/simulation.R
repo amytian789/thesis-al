@@ -137,7 +137,7 @@ for (i in 1:k){
 }
 
 # Query by Committee with overall "Committee Majority Vote" classifier
-# no pruning
+# no pruning -- remember to comment out code in AL_engine.R
 qbc_majority_noprune_results <- rep(0, iter)
 set.seed(10)
 for (i in 1:k){
@@ -162,7 +162,7 @@ for (i in 1:k){
 }
 
 # Query by Committee with overall "Random Forest" classifier
-# no pruning
+# no pruning -- remember to comment out code in AL_engine.R
 qbc_rf_noprune_results <- rep(0, iter)
 set.seed(10)
 for (i in 1:k){

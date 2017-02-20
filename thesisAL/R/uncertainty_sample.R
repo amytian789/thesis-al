@@ -2,13 +2,15 @@
 #'
 #' @param X the full data matrix, n x d, including all unlabeled data
 #' @param y a factor vector with 2 levels and NAs for unlabeled data
-#' @param unlabel_index_c is a vector of n pre-selected indices that the AL method may choose from 
+#' @param unlabel_index_c is a vector of n pre-selected (pooled) indices
 #' @param classifier the classifier name
 #' @param ... additional parameters for the active learning method
 #'
-#' @return a vector of indices to query
+#' @return an index to query
 #' @export
-uncertainty_sample <- function(X, y, unlabel_index_c, classifier, ...) {
+
+uncertainty_sample <- function(X, y, unlabel_index_c, classifier, ...){
+  
   if (length(classifier) > 1 || missing(classifier) || is.null(classifier) || is.na(classifier)) {
     stop("A single classifier is required for uncertainty sampling")
   }
@@ -19,7 +21,7 @@ uncertainty_sample <- function(X, y, unlabel_index_c, classifier, ...) {
     stop(classifier," must return posterior probabilities")
   }
   
-  # Split x and y to retrieve labeled and unlabeled pairs
+  # Split X and y to retrieve labeled and unlabeled pairs
   unlabel_index <- which(is.na(y))
   x_lab <- X[-unlabel_index,]
   y_lab <- y[-unlabel_index]

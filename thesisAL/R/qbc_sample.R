@@ -2,17 +2,23 @@
 #'
 #' @param X the full data matrix, n x d, including all unlabeled data
 #' @param y a factor vector with 2 levels and NAs for unlabeled data
-#' @param unlabel_index_c is a vector of n pre-selected indices that the AL method may choose from 
+#' @param unlabel_index_c is a vector of n pre-selected (pooled) indices
 #' @param committee the list of committee classifiers
 #' @param dis is the disagreement measure between committee classifications
-#' @param isMajority is whether the overall classifier is majority vote or random forest
+#' @param isMajority is if overall classifier Majority Vote or Random Forest
+#' @param tout is a list of trained classifiers from Majority Vote computation 
 #' @param ... additional parameters for the active learning method
 #'
-#' @return a vector of indices to query AND the committee predictions of this round
+#' @return a list with: an index to query AND the committee predictions
 #' @export
-qbc_sample <- function(X, y, unlabel_index_c, committee, dis = "vote_entropy", isMajority = FALSE, tout = NULL, ...) {
-  if (missing(committee) || is.null(committee)) stop("A committee is required for QBC")
-  if (isMajority & is.null(test)) stop("Re-feed the majority vote return to the next QBC_sample call")
+
+qbc_sample <- function(X, y, unlabel_index_c, committee, 
+                       dis = "vote_entropy", isMajority = FALSE, tout = NULL, ...){
+  
+  if (missing(committee) || is.null(committee)) stop("A committee is required")
+  if (isMajority & is.null(test)) {
+    stop("Re-feed the majority vote return to the next QBC_sample call")
+  }
   
   unlabel_index <- which(is.na(y))
   x_lab <- X[-unlabel_index,]
@@ -32,7 +38,7 @@ qbc_sample <- function(X, y, unlabel_index_c, committee, dis = "vote_entropy", i
     }
   }
 
-  # Compute disagreement (utilizing the functions from the activelearning package)
+  # Compute disagreement (functions from the activelearning package)
   d <- switch(dis,
               vote_entropy=vote_entropy(p),
               post_entropy=post_entropy(p),

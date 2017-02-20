@@ -1,3 +1,4 @@
+# Load the MNIST dataset
 load_mnist <- function() {
   load_image_file <- function(filename) {
     ret = list()
@@ -26,15 +27,12 @@ load_mnist <- function() {
   #test$y <<- load_label_file('mnist/t10k-labels-idx1-ubyte')  
 }
 
-
-show_digit <- function(arr784, col=gray(12:1/12), ...) {
-  image(matrix(arr784, nrow=28)[,28:1], col=col, ...)
-}
-
+# Plot a single digit
 show_digitsmall <- function(arr196, col=gray(12:1/12), ...) {
   image(matrix(arr196, nrow=14)[,14:1], col=col, ...)
 }
 
+# Compress the MNIST dataset from 28x28 to 14x14
 compressImg <- function(full){
   compressFour <- function(j){
     pixelvec = rep(NA,4)
@@ -49,6 +47,7 @@ compressImg <- function(full){
   return(compress)
 }
 
+# Plot a multitude of digits
 plotTable <- function(numRow,numCol,vec.labels,mat.images){
   vec.uniq = unique(vec.labels)
   par(mfrow=c(numRow,numCol),pty="s",mar = c(0.1,0.1,0.1,0.1))

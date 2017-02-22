@@ -250,10 +250,10 @@ if (length(which(qbc_prune_vec < qbc_noprune_vec)) > length(which(qbc_prune_vec 
 ################################### Plot the results
 
 date <- Sys.Date()
-pdf(file=paste0("results/rf_", date, ".PDF"), 
+pdf(file=paste0("results/results_", date, ".PDF"), 
     height = 6, width = 10)
 
-# Plot all AL performance
+### Plot all AL performance
 ymax <- max(c(us_vec, random_vec, qbc_vec,cluster_vec))
 graphics::plot(1:iter, qbc_vec, ylim = c(0, ymax), lwd = 2, type = "l", 
                main="Various Active Learning Error Ratios with Random Forest Classifier", 
@@ -262,20 +262,48 @@ graphics::lines(1:iter, random_vec, lwd = 2, col = "red")
 graphics::lines(1:iter, us_vec, lwd = 2, col = "black")
 graphics::lines(1:iter, qbb_vec, lwd = 2, col = "blue")
 graphics::lines(1:iter, cluster_vec, lwd = 2, col = "orange")
-graphics::legend(x="bottomleft",lwd=2,cex = 0.75,legend=
-                 c("Random Sampling","Uncertainty Sampling","Query by Committee","Query by Bagging","Min-Max Clustering"),
+graphics::legend(x="bottomleft",lwd=2,cex = 0.75,
+                 title="Active Learning method",
+                 legend=c("Random Sampling","Uncertainty Sampling","Query by Committee (best)",
+                          "Query by Bagging","Min-Max Clustering"),
                  col=c("red","black","green","blue","orange"))
 
-# Plot QBC performance on same scale as earlier
+### Plot QBC performance
 graphics::plot(1:iter, qbc_majority_vec, ylim = c(0, ymax), lwd = 2, type = "l", 
                main="Query by Committee AL Error Ratio with Various Classifiers", 
-               xlab="Iterations", ylab="Error", col = "black")
+               xlab="Iterations", ylab="Error", col = "red")
+graphics::lines(1:iter, qbc_majority_noprune_vec, lwd = 2, lty = 2, col = "red")
 graphics::lines(1:iter, qbc_rf_vec, lwd = 2, col = "blue")
-graphics::legend(x="bottomleft",lwd=2,cex = 0.75,legend=c("Random Forest","Majority Committee Vote"),col=c("black","blue"))
+graphics::lines(1:iter,qbc_rf_noprune_vec, lwd = 2, lty = 2, col = "blue")
+graphics::legend(x="bottomleft",lwd=2,cex = 0.75,
+                 title="Main Classifier | Committee Pruning?",
+                 legend=c("Majority Committee Vote | Yes", "Majority Committee Vote | No",
+                          "Random Forest | Yes", "Random Forest | No"),
+                 col=c("red","red","blue","blue"), lty=c(1,2,1,2))
 
-# Plot 95% confidence intervals
+### Plot 95% confidence intervals
 
+par(mfrow=c(3,2))
 
+# Random Sampling
+graphics::plot()
+graphics::lines()
+
+# Uncertainty Sampling
+graphics::plot()
+graphics::lines()
+
+# Min-Max Clustering
+graphics::plot()
+graphics::lines()
+
+# Query by Bagging
+graphics::plot()
+graphics::lines()
+
+# Query by Committee (best)
+graphics::plot()
+graphics::lines()
 
 graphics.off()
 save.image(file = paste0("results/results_", date, ".RData"))

@@ -21,16 +21,13 @@ load("results/qbb_voteentropy_2017-02-16.RData")
 qbbvec <- qbb_voteentropy_vec
 
 # Query by Committee
-load("results/qbc_majority_2017-02-17.RData")
+load("results/qbc_majority_ALL_2017-02-21.RData")
 qbc_majorityvec <- qbc_majority_vec
-load("results/qbc_rf_2017-02-18.RData")
-qbc_rfvec <- qbc_rf_vec
-
-# Query by Committee (no committee pruning)
-load("results/qbc_rf_noprune_2017-02-18.RData")
-qbc_rf_noprunevec <- qbc_rf_noprune_vec
-load("results/qbc_majority_noprune_2017-02-19.RData")
 qbc_majority_noprunevec <- qbc_majority_noprune_vec
+
+load("results/qbc_rf_ALL_2017-02-22.RData")
+qbc_rfvec <- qbc_rf_vec
+qbc_rf_noprunevec <- qbc_rf_noprune_vec
 
 # Select best QBC output
 # if (length(which(qbc_majorityvec < qbc_rfvec)) > length(which(qbc_majorityvec > qbc_rfvec))){

@@ -273,5 +273,9 @@ graphics::plot(1:iter, qbc_majority_vec, ylim = c(0, ymax), lwd = 2, type = "l",
 graphics::lines(1:iter, qbc_rf_vec, lwd = 2, col = "blue")
 graphics::legend(x="bottomleft",lwd=2,cex = 0.75,legend=c("Random Forest","Majority Committee Vote"),col=c("black","blue"))
 
+# Plot 95% confidence intervals
+
+
+
 graphics.off()
 save.image(file = paste0("results/results_", date, ".RData"))

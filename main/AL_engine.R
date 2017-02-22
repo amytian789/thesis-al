@@ -47,9 +47,17 @@ AL_engine <- function(X, y, y_unlabeled, al_method,
       tout <- classifier_method(X[idx,], y_unlabeled[idx], committee = cm)
       res[i] <- return_method(tout, X, y, committee = cm)
     }
-    # Everything else (not QBC)
+    # Everything else (not QBC, not US)
     else {
-      next_sample <- active_learning(X, y_unlabeled, al_method, n, ...)
+      if (i != 1 & al_method == "us") {
+        # classifier_method re-trains random forest after the oracle
+        # Save computation time by passing those results to US algo
+        # Of course, this only works since classifier = "rf", and the
+        # classifier_method function also uses "rf"
+        next_sample <- active_learning(X, y_unlabeled, al_method, n, isR = TRUE, tout = tout, ...)
+      } else {
+        next_sample <- active_learning(X, y_unlabeled, al_method, n, ...)
+      }
       y_unlabeled[next_sample] <- y[next_sample]
       
       # Compute residual error

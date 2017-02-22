@@ -16,7 +16,7 @@ qbc_sample <- function(X, y, unlabel_index_c, committee,
                        dis = "vote_entropy", isMajority = FALSE, tout = NULL, ...){
   
   if (missing(committee) || is.null(committee)) stop("A committee is required")
-  if (isMajority & is.null(test)) {
+  if (isMajority & is.null(tout)) {
     stop("Re-feed the majority vote return to the next QBC_sample call")
   }
   

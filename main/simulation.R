@@ -9,19 +9,20 @@ source("main/AL_data.R")
 
 ################################## Overall classifier and return methods
 
-# Generic classifier method: X and y contain labeled points
-# This is the MAIN overall classifier that will train on the data once the AL selection is completed
+# MAIN class.model that will train on the data once AL selection is completed
+# X and y contain labeled points
 classifier_method <- function(X, y, ...) {
   caret::train(X,y,method="rf")
 }
 
-# Generic classifier method prediction: X contain all points to predict
-# This is the MAIN overall classifier that will train on the data once the AL selection is completed
+# MAIN prediction method for the data once AL selection is completed
+# X contains all points to predict
 classifier_predict <- function(classifier, X, ...) {
   stats::predict(classifier, X)
 }
 
-# QBC classifier method: X and y contain labeled points
+# Majority Committee Vote classification model
+# X and y contain labeled points
 qbc_majority <- function(X, y, committee, ...) {
   tout <- vector("list",length(committee))
   for (i in 1:length(committee)){
@@ -30,14 +31,15 @@ qbc_majority <- function(X, y, committee, ...) {
   tout
 }
 
-# Generic error ratio: X contain all points. y are known labels (unknown to the learning algorithm)
+# Generic error ratio
+# X contain all points. y are known labels (unknown to the learning algorithm)
 return_method <- function(classifier, X, y, ...) {
   p <- stats::predict(classifier, X)
-
   length(which(p != y))/length(y)
 }
 
-# QBC error ratio: X contain all points. y are known labels (unknown to the learning algorithm)
+# QBC error ratio
+# X contain all points. y are known labels (unknown to the learning algorithm)
 qbc_m_return <- function(tout, X, y, committee, ...) {
   p <- vector("list",length(committee))
   for (i in 1:length(committee)) {
@@ -102,8 +104,8 @@ rm(train)
 
 ###################################
  
-s <- 15 # Number of random unlabeled points to "stream" to the AL method
-        # n = 0 indicates that the AL stream should sample from all data points
+s <- 15 # Number of random unlabeled points to "pool"
+        # n = 0 indicates that the "pool" should sample from all data points
 k <- 25 # Number of simulations to run
 iter <- 50  # Number of AL algorithm iterations (the "budget")
 
@@ -125,7 +127,7 @@ for (i in 1:k){
   print(c("Trial ",i,"complete"))
 }
 
-# Query by Committee with overall "Committee Majority Vote" classifier
+# Query by Committee with "Majority Committee Vote" model
 qbc_majority_results <- matrix(0,nrow=k,ncol=iter)
 for (i in 1:k){
   set.seed(i)
@@ -136,7 +138,7 @@ for (i in 1:k){
   print(c("Trial ",i,"complete"))
 }
 
-# Query by Committee with overall "Committee Majority Vote" classifier
+# Query by Committee with "Majority Committee Vote" model
 # no pruning
 qbc_majority_noprune_results <- matrix(0,nrow=k,ncol=iter)
 for (i in 1:k){
@@ -148,7 +150,7 @@ for (i in 1:k){
   print(c("Trial ",i,"complete"))
 }
 
-# Query by Committee with overall "Random Forest" classifier
+# Query by Committee with overall "Random Forest" model
 qbc_rf_results <- matrix(0,nrow=k,ncol=iter)
 for (i in 1:k){
   set.seed(i)
@@ -159,7 +161,7 @@ for (i in 1:k){
   print(c("Trial ",i,"complete"))
 }
 
-# Query by Committee with overall "Random Forest" classifier
+# Query by Committee with overall "Random Forest" model
 # no pruning
 qbc_rf_noprune_results <- matrix(0,nrow=k,ncol=iter)
 for (i in 1:k){

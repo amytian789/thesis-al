@@ -103,9 +103,9 @@ rm(train)
 
 
 ###################################
- 
+
 s <- 15 # Number of random unlabeled points to "pool"
-        # n = 0 indicates that the "pool" should sample from all data points
+# n = 0 indicates that the "pool" should sample from all data points
 k <- 25 # Number of simulations to run
 iter <- 50  # Number of AL algorithm iterations (the "budget")
 
@@ -122,8 +122,8 @@ us_results <- matrix(0,nrow=k,ncol=iter)
 for (i in 1:k){
   set.seed(i)
   us_results[i,] <- AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "us", 
-                               classifier_method = classifier_method, return_method = return_method, 
-                               iter = iter, n = s, classifier = "rf")
+                              classifier_method = classifier_method, return_method = return_method, 
+                              iter = iter, n = s, classifier = "rf")
   print(c("Trial ",i,"complete"))
 }
 
@@ -133,8 +133,8 @@ for (i in 1:k){
   set.seed(i)
   ### To change the committee, you must set it in the AL_engine
   qbc_majority_results[i,] <- AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", 
-                                         classifier_method = qbc_majority,return_method = qbc_m_return, 
-                                         iter = iter, n = s, dis = "vote_entropy", pt = 0.5)
+                                        classifier_method = qbc_majority,return_method = qbc_m_return, 
+                                        iter = iter, n = s, dis = "vote_entropy", pt = 0.5)
   print(c("Trial ",i,"complete"))
 }
 
@@ -145,8 +145,8 @@ for (i in 1:k){
   set.seed(i)
   ### To change the committee, you must set it in the AL_engine_noprune
   qbc_majority_noprune_results[i,] <- AL_engine_noprune(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", 
-                                         classifier_method = qbc_majority, return_method = qbc_m_return, 
-                                         iter = iter, n = s, dis = "vote_entropy", pt = 0.5)
+                                                        classifier_method = qbc_majority, return_method = qbc_m_return, 
+                                                        iter = iter, n = s, dis = "vote_entropy", pt = 0.5)
   print(c("Trial ",i,"complete"))
 }
 
@@ -156,8 +156,8 @@ for (i in 1:k){
   set.seed(i)
   ### To change the committee, you must set it in the AL_engine
   qbc_rf_results[i,] <- AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", 
-                                   classifier_method = classifier_method, return_method = return_method, 
-                                   iter = iter, n = s, dis = "vote_entropy", pt = 0.5)
+                                  classifier_method = classifier_method, return_method = return_method, 
+                                  iter = iter, n = s, dis = "vote_entropy", pt = 0.5)
   print(c("Trial ",i,"complete"))
 }
 
@@ -168,8 +168,8 @@ for (i in 1:k){
   set.seed(i)
   ### To change the committee, you must set it in the AL_engine_noprune
   qbc_rf_noprune_results[i,] <- AL_engine_noprune(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbc", 
-                                   classifier_method = classifier_method, return_method = return_method, 
-                                   iter = iter, n = s, dis = "vote_entropy", pt = 0.5)
+                                                  classifier_method = classifier_method, return_method = return_method, 
+                                                  iter = iter, n = s, dis = "vote_entropy", pt = 0.5)
   print(c("Trial ",i,"complete"))
 }
 
@@ -178,8 +178,8 @@ qbb_results <- matrix(0,nrow=k,ncol=iter)
 for (i in 1:k){
   set.seed(i)
   qbb_results[i,] <- AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "qbb", 
-                                classifier_method = classifier_method,return_method = return_method, 
-                                iter = iter,n = s,classifier="rf",dis = "vote_entropy",num_class=5,r=0.75)
+                               classifier_method = classifier_method,return_method = return_method, 
+                               iter = iter,n = s,classifier="rf",dis = "vote_entropy",num_class=5,r=0.75)
   print(c("Trial ",i,"complete"))
 }
 
@@ -188,8 +188,8 @@ cluster_results <- matrix(0,nrow=k,ncol=iter)
 for (i in 1:k){
   set.seed(i)
   cluster_results[i,] <- AL_engine(X=X, y=y, y_unlabeled=y_unlabeled, al_method = "cluster", 
-                                    classifier_method = classifier_method, return_method = return_method, 
-                                    iter = iter,n = s, dis = "euclidean")
+                                   classifier_method = classifier_method, return_method = return_method, 
+                                   iter = iter,n = s, dis = "euclidean")
   print(c("Trial ",i,"complete"))
 }
 
@@ -252,8 +252,7 @@ if (length(which(qbc_prune_vec < qbc_noprune_vec)) > length(which(qbc_prune_vec 
 ################################### Plot the results
 
 date <- Sys.Date()
-pdf(file=paste0("results/results_", date, ".PDF"), 
-    height = 6, width = 10)
+pdf(file=paste0("results/results_", date, ".PDF"), height = 6, width = 10)
 
 ### Plot all AL performance
 ymax <- max(c(us_vec, random_vec, qbc_vec,cluster_vec))

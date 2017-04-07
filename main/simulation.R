@@ -257,8 +257,9 @@ pdf(file=paste0("results/results_", date, ".PDF"), height = 6, width = 10)
 ### Plot all AL performance
 ymax <- max(c(us_vec, random_vec, qbc_vec,cluster_vec))
 graphics::plot(1:iter, qbc_vec, ylim = c(0, ymax), lwd = 2, type = "l", 
-               main="Various Active Learning Error Ratios with Random Forest Classifier", 
+               main="AL Error Ratios with Random Forest classification model*",  
                xlab="Iterations", ylab="Error", col = "green")
+mtext("*Query by Committee uses Majority Committee Vote classification model")
 graphics::lines(1:iter, random_vec, lwd = 2, col = "red")
 graphics::lines(1:iter, us_vec, lwd = 2, col = "black")
 graphics::lines(1:iter, qbb_vec, lwd = 2, col = "blue")
@@ -271,40 +272,75 @@ graphics::legend(x="bottomleft",lwd=2,cex = 0.75,
 
 ### Plot QBC performance
 graphics::plot(1:iter, qbc_majority_vec, ylim = c(0, ymax), lwd = 2, type = "l", 
-               main="Query by Committee AL Error Ratio with Various Classifiers", 
+               main="Query by Committee AL Error Ratio with various parameters", 
                xlab="Iterations", ylab="Error", col = "red")
 graphics::lines(1:iter, qbc_majority_noprune_vec, lwd = 2, lty = 2, col = "red")
 graphics::lines(1:iter, qbc_rf_vec, lwd = 2, col = "blue")
 graphics::lines(1:iter,qbc_rf_noprune_vec, lwd = 2, lty = 2, col = "blue")
 graphics::legend(x="bottomleft",lwd=2,cex = 0.75,
-                 title="Main Classifier | Committee Pruning?",
+                 title=" Main Classification Model | Committee Pruning",
                  legend=c("Majority Committee Vote | Yes", "Majority Committee Vote | No",
                           "Random Forest | Yes", "Random Forest | No"),
                  col=c("red","red","blue","blue"), lty=c(1,2,1,2))
 
-### Plot 95% confidence intervals
+graphics.off()
 
+### Plot 95% confidence intervals (using t-distribution)
+
+pdf(file=paste0("results/results_ci_", date, ".PDF"), height = 8, width = 8)
 par(mfrow=c(3,2))
+tt <- rep(0,iter)
+ymax <- 0.3
 
 # Random Sampling
-graphics::plot()
-graphics::lines()
+for (i in 1:iter){
+  tt[i] <- qt(0.975,k-1) * sd(random_results[,i]) / sqrt(k)
+}
+graphics::plot(1:iter, random_vec, ylim = c(0, ymax), lwd = 2, 
+               type = "l", main="Confidence Intervals for Random Sampling",  
+               xlab="Iterations", ylab="Error", col = "black")
+graphics::lines(1:iter, random_vec + tt, lwd = 2, lty = 2, col = "red")
+graphics::lines(1:iter, random_vec - tt, lwd = 2, lty = 2, col = "red")
 
 # Uncertainty Sampling
-graphics::plot()
-graphics::lines()
+for (i in 1:iter){
+  tt[i] <- qt(0.975,k-1) * sd(us_results[,i]) / sqrt(k)
+}
+graphics::plot(1:iter, us_vec, ylim = c(0, ymax), lwd = 2, 
+               type = "l", main="Confidence Intervals for Uncertainty Sampling",  
+               xlab="Iterations", ylab="Error", col = "black")
+graphics::lines(1:iter, us_vec + tt, lwd = 2, lty = 2, col = "red")
+graphics::lines(1:iter, us_vec - tt, lwd = 2, lty = 2, col = "red")
 
 # Min-Max Clustering
-graphics::plot()
-graphics::lines()
+for (i in 1:iter){
+  tt[i] <- qt(0.975,k-1) * sd(cluster_results[,i]) / sqrt(k)
+}
+graphics::plot(1:iter, cluster_vec, ylim = c(0, ymax), lwd = 2, 
+               type = "l", main="Confidence Intervals for Min-Max Clustering",  
+               xlab="Iterations", ylab="Error", col = "black")
+graphics::lines(1:iter, cluster_vec + tt, lwd = 2, lty = 2, col = "red")
+graphics::lines(1:iter, cluster_vec - tt, lwd = 2, lty = 2, col = "red")
 
 # Query by Bagging
-graphics::plot()
-graphics::lines()
+for (i in 1:iter){
+  tt[i] <- qt(0.975,k-1) * sd(qbb_results[,i]) / sqrt(k)
+}
+graphics::plot(1:iter, qbb_vec, ylim = c(0, ymax), lwd = 2, 
+               type = "l", main="Confidence Intervals for Query by Bagging",  
+               xlab="Iterations", ylab="Error", col = "black")
+graphics::lines(1:iter, qbb_vec + tt, lwd = 2, lty = 2, col = "red")
+graphics::lines(1:iter, qbb_vec - tt, lwd = 2, lty = 2, col = "red")
 
 # Query by Committee (best)
-graphics::plot()
-graphics::lines()
+for (i in 1:iter){
+  tt[i] <- qt(0.975,k-1) * sd(qbc_majority_noprune_results[,i]) / sqrt(k)
+}
+graphics::plot(1:iter, qbc_vec, ylim = c(0, ymax), lwd = 2, 
+               type = "l", main="Confidence Intervals for Query by Committee (best)",  
+               xlab="Iterations", ylab="Error", col = "black")
+graphics::lines(1:iter, qbc_vec + tt, lwd = 2, lty = 2, col = "red")
+graphics::lines(1:iter, qbc_vec - tt, lwd = 2, lty = 2, col = "red")
 
 graphics.off()
 save.image(file = paste0("results/results_", date, ".RData"))
